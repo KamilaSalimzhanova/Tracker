@@ -80,5 +80,8 @@ final class TabBarViewController: UITabBarController {
     
     @objc func addTarget() {
         print("Add target")
+        let viewController = TrackerTypeViewController()
+        viewController.modalPresentationStyle = .popover
+        self.present(viewController, animated: true)
     }
 }
