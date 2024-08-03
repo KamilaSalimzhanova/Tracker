@@ -58,20 +58,21 @@ final class TabBarViewController: UITabBarController {
     }
     
     private func setUpDatePicket() -> UIDatePicker {
-        let date = Date().dateTimeString
-        var datePicker: UIDatePicker = UIDatePicker()
-        datePicker.backgroundColor = UIColor.white
-        datePicker.preferredDatePickerStyle = .compact
+        let datePicker: UIDatePicker = UIDatePicker()
+        datePicker.preferredDatePickerStyle = .automatic
         datePicker.datePickerMode = .date
+        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            datePicker.widthAnchor.constraint(equalToConstant: 98),
+            datePicker.heightAnchor.constraint(equalToConstant: 34)])
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         return datePicker
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.YY" // Set your desired format here
-        let formattedDate = dateFormatter.string(from: sender.date)
-        print("Selected date: \(formattedDate)") // Do something with the formatted date
+        //let selectedDate = sender.date
+        //trackerViewController.currentDate = selectedDate
     }
     
     @objc func addTarget() {
