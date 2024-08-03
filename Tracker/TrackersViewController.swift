@@ -1,6 +1,10 @@
 import UIKit
 
 class TrackersViewController: UIViewController {
+    
+    //var categories: [TrackerCategory]
+    //var completedTrackers: [TrackerRecord]
+    
     lazy var searchBar: UISearchBar = {
         let searchBar: UISearchBar = UISearchBar()
         searchBar.placeholder = "Поиск"

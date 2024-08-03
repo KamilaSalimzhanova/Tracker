@@ -4,12 +4,12 @@ import UIKit
 final class TabBarViewController: UITabBarController {
     
     private let dateLabel: UILabel = {
-            let label = UILabel()
-            label.textColor = .black
-            label.font = UIFont.systemFont(ofSize: 17)
-            label.textAlignment = .center
-            return label
-        }()
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.textAlignment = .center
+        return label
+    }()
     
     private enum TabBarItem: String {
         case trackers = "Трекеры"
@@ -70,9 +70,12 @@ final class TabBarViewController: UITabBarController {
         return datePicker
     }
     
-    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
-        //let selectedDate = sender.date
-        //trackerViewController.currentDate = selectedDate
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        let selectedDate = sender.date
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "dd.MM.yyyy" 
+        let formattedDate = dateFormatter.string(from: selectedDate)
+        print("Выбранная дата: \(formattedDate)")
     }
     
     @objc func addTarget() {
