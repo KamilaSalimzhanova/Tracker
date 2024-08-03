@@ -4,6 +4,12 @@
 <dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
+		<key>UIAppFonts</key>
+		<array>
+            <string>SF-Pro-Display-Medium.otf</string>
+            <string>SF-Pro-Display-Bold.otf</string>
+            <string>SF-Pro-Display-Regular.otf</string>
+		</array>
 		<key>UIApplicationSupportsMultipleScenes</key>
 		<false/>
 		<key>UISceneConfigurations</key>
