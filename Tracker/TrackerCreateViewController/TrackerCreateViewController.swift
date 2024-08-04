@@ -98,7 +98,7 @@ final class TrackerCreateViewController: UIViewController {
     private lazy var newTrackerTextFieldView: UIView = {
         let newTrackerTextFieldView = UIView()
         newTrackerTextFieldView.translatesAutoresizingMaskIntoConstraints = false
-        newTrackerTextFieldView.backgroundColor = UIColor(red: 230, green: 232, blue: 235, alpha: 0.3)
+        newTrackerTextFieldView.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
         newTrackerTextFieldView.layer.cornerRadius = 16
         return newTrackerTextFieldView
     }()
@@ -202,9 +202,9 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     private func addSubviews(){
-        view.addSubview(scrollView)
         buttonStack.addArrangedSubview(cancelButton)
         buttonStack.addArrangedSubview(createButton)
+        view.addSubview(scrollView)
         scrollView.addSubview(trackerView)
         trackerView.addSubview(titleLabel)
         trackerView.addSubview(newTrackerTextFieldView)
@@ -311,9 +311,13 @@ extension TrackerCreateViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         if indexPath.row == 1 {
             let viewController = ScheduleViewController()
-            //viewController.delegate = self
-            //viewController.modalPresentationStyle = .popover
-            //self.present(viewController, animated: true)
+            viewController.delegate = self
+            viewController.modalPresentationStyle = .popover
+            self.present(viewController, animated: true)
+        } else {
+            let viewController = CategoryViewController()
+            viewController.modalPresentationStyle = .popover
+            self.present(viewController, animated: true)
         }
     }
 }

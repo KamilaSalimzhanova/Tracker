@@ -12,6 +12,7 @@ final class TrackerTypeViewController: UIViewController {
         habbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         habbitButton.tintColor = .ypWhite
         habbitButton.backgroundColor = .ypBlack
+        habbitButton.addTarget(self, action: #selector(habbitButtonTapped), for: .touchUpInside)
         return habbitButton
     }()
 
@@ -22,6 +23,7 @@ final class TrackerTypeViewController: UIViewController {
         notRegularCaseButton.backgroundColor = .ypBlack
         notRegularCaseButton.tintColor = .ypWhite
         notRegularCaseButton.setTitle("Нерегулярное событие", for: .normal)
+        notRegularCaseButton.addTarget(self, action: #selector(irregularButtonTapped), for: .touchUpInside)
         return notRegularCaseButton
         
     }()
@@ -67,5 +69,19 @@ final class TrackerTypeViewController: UIViewController {
             notRegularCaseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             notRegularCaseButton.topAnchor.constraint(equalTo: habbitButton.bottomAnchor, constant: 16)
         ])
+    }
+    
+    @objc func habbitButtonTapped() {
+        let viewController = TrackerCreateViewController(regular: true, trackerTypeViewController: self)
+        viewController.delegate = trackerViewController
+        viewController.modalPresentationStyle = .popover
+        self.present(viewController, animated: true)
+    }
+    
+    @objc func irregularButtonTapped() {
+        let viewController = TrackerCreateViewController(regular: false, trackerTypeViewController: self)
+        viewController.delegate = trackerViewController
+        viewController.modalPresentationStyle = .popover
+        self.present(viewController, animated: true)
     }
 }

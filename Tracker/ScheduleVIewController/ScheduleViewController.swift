@@ -4,7 +4,7 @@ final class ScheduleViewController: UIViewController {
     
     private var trackerSchedule: [String] = []
     private var scheduleSubtitle: [String] = []
-    var delegate: TrackerCreateViewController?
+    weak var delegate: TrackerCreateViewController?
     
     private let schedule = [
         Weekdays.Monday.rawValue,
@@ -40,7 +40,9 @@ final class ScheduleViewController: UIViewController {
     
     private lazy var scheduleTableView: UITableView = {
         let table = UITableView()
-        table.layer.cornerRadius = 16
+        view.layer.masksToBounds = true
+        view.layer.cornerRadius = 16
+        view.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         table.backgroundColor = .ypWhite
         table.dataSource = self
         table.delegate = self

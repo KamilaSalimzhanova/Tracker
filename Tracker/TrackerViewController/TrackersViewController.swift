@@ -6,7 +6,7 @@ class TrackersViewController: UIViewController {
     private var complitedTrackers: [TrackerRecord] = []
     private var trackersForCurrentDate: [TrackerCategory] = []
 
-    private var categories: [TrackerCategory] = [
+    var categories: [TrackerCategory] = [
         TrackerCategory(title: "Повседневное",
                         trackers: [
                             Tracker(trackerId: UUID(), name: "Игра в теннис", color: .ypBlue, emoji: "🏓", schedule: ["Понедельник"]),
