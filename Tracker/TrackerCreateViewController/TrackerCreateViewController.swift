@@ -12,7 +12,8 @@ final class TrackerCreateViewController: UIViewController {
     var trackerSchedule: [String] = []
     var trackerTitle = ""
     var scheduleTitle: String?
-    
+    var emojiSelected: String = "🙂"
+    var colorSelected: UIColor = .ypPink
     private let sectionHeader = ["Emoji","Цвет"]
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     
@@ -261,7 +262,7 @@ final class TrackerCreateViewController: UIViewController {
     @objc func createTracker(){
         let schedule = trackerSchedule
         guard let category = self.category else { return }
-        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: .ypBlue, emoji: "🥵", schedule: schedule)
+        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule)
         
         delegate?.createTracker(category: category, tracker: tracker)
         self.dismiss(animated: false)
@@ -400,10 +401,12 @@ extension TrackerCreateViewController: UICollectionViewDelegateFlowLayout {
                     cell?.layer.cornerRadius = 16
                     cell?.clipsToBounds = true
                     cell?.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
+                    self.emojiSelected = self.emoji[indexPath.row]
                 } else {
                     cell?.layer.cornerRadius = 8
                     cell?.layer.borderWidth = 3
                     cell?.layer.borderColor = colorsBorder[indexPath.row].cgColor
+                    self.colorSelected = self.colors[indexPath.row]
                 }
             }
     }
