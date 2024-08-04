@@ -1,9 +1,20 @@
 import UIKit
 
+protocol TrackerCollectionViewCellProtocol: AnyObject {
+    func completeTracker(id: UUID, at indexPath: IndexPath)
+    func uncompleteTracker(id: UUID, at indexPath: IndexPath)
+}
 final class TrackerCollectionViewCell: UICollectionViewCell {
     
-    var isPlusButtonTapped: Bool = false
+    var trackerId: UUID?
+    var tracker: Tracker?
+    var completedDays: Int = 0
+    var indexPath: IndexPath?
+    
+    var isCompletedToday: Bool = false
     var count = 0
+    
+    var delegate: TrackerCollectionViewCellProtocol?
     
     let noteView: UIView = {
         let noteView = UIView()
@@ -21,7 +32,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     let emojiView: UIView = {
         let emojiView = UIView()
-        emojiView.backgroundColor = .white
+        emojiView.backgroundColor = .ypWhite
         emojiView.layer.masksToBounds = true
         emojiView.layer.cornerRadius = 12
         emojiView.layer.opacity = 0.7
@@ -39,27 +50,32 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let trackerLabel = UILabel()
         trackerLabel.text = "Поливать растения"
         trackerLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        trackerLabel.textColor = .white
+        trackerLabel.textColor = .ypWhite
         return trackerLabel
     }()
     
     let dayCountLabel: UILabel = {
         let dayCountLabel = UILabel()
         dayCountLabel.text = "1 день"
-        dayCountLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
-        dayCountLabel.textColor = .black
+        dayCountLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        dayCountLabel.textColor = .ypBlack
         return dayCountLabel
     }()
     
     let dayCountButton: UIButton = {
         let dayCountButton = UIButton(type: .system)
-        dayCountButton.backgroundColor = UIColor.ypGreen
+        dayCountButton.backgroundColor = .ypGreen
         dayCountButton.layer.masksToBounds = true
         dayCountButton.layer.cornerRadius = 17
-        let buttonImage = UIImage(named: "Plus button")
-        dayCountButton.setImage(buttonImage, for: .normal)
+        dayCountButton.setImage(UIImage(named: "Plus button"), for: .normal)
+
         dayCountButton.tintColor = .white
-        dayCountButton.addTarget(TrackerCollectionViewCell.self, action: #selector(buttonTapped), for: .touchUpInside)
+        dayCountButton.addTarget(self,
+                                 action: #selector(buttonTapped),
+                                 for: .touchUpInside)
+        dayCountButton.imageView?.contentMode = .scaleAspectFit
+        dayCountButton.imageEdgeInsets = UIEdgeInsets(top: 25, left: 25, bottom: 25, right: 25)
+
         return dayCountButton
     }()
     
@@ -73,6 +89,36 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func configure(tracker: Tracker, isCompleted: Bool, indexPath: IndexPath, completedDays: Int, currentDate: Date?) {
+        self.isCompletedToday = isCompleted
+        self.trackerId = tracker.trackerId
+        self.completedDays = completedDays
+        self.indexPath = indexPath
+        let color = tracker.color
+        
+        trackerView.backgroundColor = color
+        dayCountButton.backgroundColor = color
+        
+        trackerLabel.text = tracker.name
+        emoji.text = tracker.emoji
+        
+        if isCompletedToday {
+            trackerComplete()
+        } else {
+            trackerCompleteUndo()
+        }
+        
+        guard let date = currentDate else {
+            print("No date selected")
+            return
+        }
+        
+        if date > Date(){
+            dayCountButton.isEnabled = false
+        } else {
+            dayCountButton.isEnabled = true
+        }
+    }
     private func addSubviews() {
         [
             noteView,
@@ -131,28 +177,39 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     }
     
     @objc func buttonTapped(){
-        if !isPlusButtonTapped {
+        if isCompletedToday {
             UIView.animate(withDuration: 0.2, delay: 0) {
-                self.count += 1
-                self.dayCountLabel.text = self.count.dayStringEnding()
-                let buttonImage = UIImage(named: "Done")
-                self.dayCountButton.layer.opacity = 0.7
-                self.dayCountButton.setImage(buttonImage, for: .normal)
+                guard let trackerId = self.trackerId, let indexPath = self.indexPath else {
+                    print("TrackerID is null")
+                    return
+                }
+                self.delegate?.uncompleteTracker(id: trackerId, at: indexPath)
+                self.completedDays -= 1
+                self.trackerCompleteUndo()
             }
-        }else {
+        } else {
             UIView.animate(withDuration: 0.2, delay: 0) {
-                self.count -= 1
-                self.dayCountLabel.text = self.count.dayStringEnding()
-                let buttonImage = UIImage(named: "Plus button")
-                self.dayCountButton.layer.opacity = 1
-                self.dayCountButton.setImage(buttonImage, for: .normal)
+                guard let trackerId = self.trackerId, let indexPath = self.indexPath else {
+                    print("TrackerID is null")
+                    return
+                }
+                self.delegate?.completeTracker(id: trackerId, at: indexPath)
+                self.completedDays += 1
+                self.trackerComplete()
             }
         }
-        isPlusButtonTapped = !isPlusButtonTapped
+        isCompletedToday = !isCompletedToday
+    }
+    func trackerComplete() {
+        let buttonImage = UIImage(named: "Done")
+        self.dayCountButton.layer.opacity = 0.7
+        self.dayCountButton.setImage(buttonImage, for: .normal)
+        self.dayCountLabel.text = completedDays.dayStringEnding()
+    }
+    func trackerCompleteUndo() {
+        let buttonImage = UIImage(named: "Plus button")
+        self.dayCountButton.layer.opacity = 1
+        self.dayCountButton.setImage(buttonImage, for: .normal)
+        self.dayCountLabel.text = completedDays.dayStringEnding()
     }
 }
-
-
-
-
-

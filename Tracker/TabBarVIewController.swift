@@ -3,6 +3,9 @@ import UIKit
 
 final class TabBarViewController: UITabBarController {
     
+    let trackersViewController = TrackersViewController()
+    let statisticViewController = StatisticViewController()
+    
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -19,14 +22,12 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tabBar.backgroundColor = .white
+        trackersViewController.currentDate = Date()
         self.setupViewControllers()
         self.setupNavigationBar()
     }
     
     private func setupViewControllers() {
-        
-        let trackersViewController = TrackersViewController()
-        let statisticViewController = StatisticViewController()
         
         trackersViewController.tabBarItem = UITabBarItem(
             title: TabBarItem.trackers.rawValue,
@@ -51,7 +52,7 @@ final class TabBarViewController: UITabBarController {
             target: self,
             action: #selector(addTarget)
         )
-        self.navigationItem.leftBarButtonItem?.tintColor = .black
+        self.navigationItem.leftBarButtonItem?.tintColor = .ypBlack
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(customView: setUpDatePicket())
         self.navigationItem.rightBarButtonItem?.customView?.layer.masksToBounds = true
         self.navigationItem.rightBarButtonItem?.customView?.layer.cornerRadius = 8
@@ -59,28 +60,29 @@ final class TabBarViewController: UITabBarController {
     
     private func setUpDatePicket() -> UIDatePicker {
         let datePicker: UIDatePicker = UIDatePicker()
-        datePicker.preferredDatePickerStyle = .automatic
+        datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
         datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            datePicker.widthAnchor.constraint(equalToConstant: 98),
+            datePicker.widthAnchor.constraint(equalToConstant: 100),
             datePicker.heightAnchor.constraint(equalToConstant: 34)])
-        datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        datePicker.addTarget(self,
+                             action: #selector(datePickerValueChanged(_:)),
+                             for: .valueChanged)
+
         return datePicker
     }
     
     @objc func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy" 
-        let formattedDate = dateFormatter.string(from: selectedDate)
-        print("Выбранная дата: \(formattedDate)")
+        trackersViewController.currentDate = selectedDate
     }
     
     @objc func addTarget() {
         print("Add target")
         let viewController = TrackerTypeViewController()
+        viewController.trackerViewController = trackersViewController
         viewController.modalPresentationStyle = .popover
         self.present(viewController, animated: true)
     }

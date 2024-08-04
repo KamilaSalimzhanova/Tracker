@@ -1,21 +1,23 @@
 import UIKit
-class TrackerSupplementaryView: UICollectionReusableView {
+
+class EmojiAndColorsSupplementaryViewCell: UICollectionReusableView {
+    
     var titleLabel: UILabel = {
         let titleLabel = UILabel()
+        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         return titleLabel
     }()
     
     override init(frame: CGRect) {
-        super.init(frame: frame)
+        super .init(frame: frame)
         
         addSubview(titleLabel)
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
-            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 16),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 24),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -24)
         ])
     }
     

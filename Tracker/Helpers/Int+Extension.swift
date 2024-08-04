@@ -12,6 +12,6 @@ extension Int {
         } else {
             dayString = "дней"
         }
-        return "\(self)" + dayString
+        return "\(self) " + dayString
     }
 }
