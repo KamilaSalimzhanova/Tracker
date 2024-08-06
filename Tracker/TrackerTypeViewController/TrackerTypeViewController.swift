@@ -71,14 +71,14 @@ final class TrackerTypeViewController: UIViewController {
         ])
     }
     
-    @objc func habbitButtonTapped() {
+    @objc private func habbitButtonTapped() {
         let viewController = TrackerCreateViewController(regular: true, trackerTypeViewController: self)
         viewController.delegate = trackerViewController
         viewController.modalPresentationStyle = .popover
         self.present(viewController, animated: true)
     }
     
-    @objc func irregularButtonTapped() {
+    @objc private func irregularButtonTapped() {
         let viewController = TrackerCreateViewController(regular: false, trackerTypeViewController: self)
         viewController.delegate = trackerViewController
         viewController.modalPresentationStyle = .popover

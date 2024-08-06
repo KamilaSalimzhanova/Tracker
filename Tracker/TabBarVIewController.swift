@@ -3,8 +3,8 @@ import UIKit
 
 final class TabBarViewController: UITabBarController {
     
-    let trackersViewController = TrackersViewController()
-    let statisticViewController = StatisticViewController()
+    private let trackersViewController = TrackersViewController()
+    private let statisticViewController = StatisticViewController()
     
     private enum TabBarItem: String {
         case trackers = "Трекеры"

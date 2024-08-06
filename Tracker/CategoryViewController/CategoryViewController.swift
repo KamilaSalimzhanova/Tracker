@@ -55,7 +55,7 @@ final class CategoryViewController: UIViewController {
     
     private var categoryTitles: [String] {
         let trackersViewController = TrackersViewController()
-        return trackersViewController.categories.map { $0.title }
+        return trackersViewController.getCategories()
     }
     
     private lazy var categoryTableView: UITableView = {
@@ -64,7 +64,7 @@ final class CategoryViewController: UIViewController {
         table.backgroundColor = .ypWhite
         table.dataSource = self
         table.delegate = self
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+        table.register(UITableViewCell.self, forCellReuseIdentifier: "categoriesTableCell")
         table.rowHeight = 75
         table.separatorInset.right = 16
         table.separatorInset.left = 16

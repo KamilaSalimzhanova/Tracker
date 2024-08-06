@@ -16,13 +16,13 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     var delegate: TrackerCollectionViewCellProtocol?
     
-    let noteView: UIView = {
+    private let noteView: UIView = {
         let noteView = UIView()
         return noteView
     }()
     
     
-    let trackerView: UIView = {
+    private let trackerView: UIView = {
         let trackerView = UIView()
         trackerView.layer.masksToBounds = true
         trackerView.layer.cornerRadius = 16
@@ -30,7 +30,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return trackerView
     }()
     
-    let emojiView: UIView = {
+    private let emojiView: UIView = {
         let emojiView = UIView()
         emojiView.backgroundColor = .ypWhite
         emojiView.layer.masksToBounds = true
@@ -39,14 +39,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return emojiView
     }()
     
-    let emoji: UILabel = {
+    private let emoji: UILabel = {
         let emoji = UILabel()
         emoji.text = "😃"
         emoji.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         return emoji
     }()
     
-    let trackerLabel: UILabel = {
+    private let trackerLabel: UILabel = {
         let trackerLabel = UILabel()
         trackerLabel.text = "Поливать растения"
         trackerLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -54,7 +54,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return trackerLabel
     }()
     
-    let dayCountLabel: UILabel = {
+    private let dayCountLabel: UILabel = {
         let dayCountLabel = UILabel()
         dayCountLabel.text = "1 день"
         dayCountLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
@@ -62,7 +62,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return dayCountLabel
     }()
     
-    let dayCountButton: UIButton = {
+    private let dayCountButton: UIButton = {
         let dayCountButton = UIButton(type: .system)
         dayCountButton.backgroundColor = .ypGreen
         dayCountButton.layer.masksToBounds = true
@@ -176,7 +176,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    @objc func buttonTapped(){
+    @objc private func buttonTapped(){
         if isCompletedToday {
             UIView.animate(withDuration: 0.2, delay: 0) {
                 guard let trackerId = self.trackerId, let indexPath = self.indexPath else {

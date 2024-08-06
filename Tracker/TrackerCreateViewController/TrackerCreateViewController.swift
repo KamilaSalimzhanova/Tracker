@@ -278,7 +278,7 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     
-    @objc func createTracker(){
+    @objc private func createTracker(){
         if !regular {
             trackerSchedule = [
                 Weekdays.Monday.rawValue,
@@ -301,11 +301,11 @@ final class TrackerCreateViewController: UIViewController {
         scheduleTitle = nil
     }
     
-    @objc func cancel(){
+    @objc private func cancel(){
         self.dismiss(animated: true)
     }
     
-    @objc func inputText(_ sender: UITextField) {
+    @objc private func inputText(_ sender: UITextField) {
         let text = sender.text ?? ""
         trackerTitle = text
         print(text)
@@ -390,9 +390,9 @@ extension TrackerCreateViewController: UICollectionViewDataSource {
         
         let headerView = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! EmojiAndColorsSupplementaryViewCell
         if id == "header" {
-            headerView.titleLabel.text = sectionHeader[indexPath.section]
+            headerView.configHeader(title: sectionHeader[indexPath.section])
         } else {
-            headerView.titleLabel.text = ""
+            headerView.configHeader(title: "")
         }
         return headerView
     }

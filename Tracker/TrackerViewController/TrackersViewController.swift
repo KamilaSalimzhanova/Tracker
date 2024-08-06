@@ -6,7 +6,7 @@ class TrackersViewController: UIViewController {
     private var complitedTrackers: [TrackerRecord] = []
     private var trackersForCurrentDate: [TrackerCategory] = []
 
-    var categories: [TrackerCategory] = [
+    private var categories: [TrackerCategory] = [
         TrackerCategory(title: "Повседневное",
                         trackers: [
                             Tracker(trackerId: UUID(), name: "Игра в теннис", color: .ypBlue, emoji: "🏓", schedule: ["Понедельник"]),
@@ -114,11 +114,11 @@ class TrackersViewController: UIViewController {
         addSubviews()
         setStubView()
         makeConstraints()
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         setupNavigationBar()
+    }
+
+    func getCategories() -> [String] {
+        return categories.map { $0.title }
     }
     
     private func addSubviews() {
@@ -239,7 +239,7 @@ class TrackersViewController: UIViewController {
         return datePicker
     }
     
-    @objc func addTarget() {
+    @objc private func addTarget() {
         print("Add target")
         let viewController = TrackerTypeViewController()
         viewController.trackerViewController = self
@@ -247,12 +247,12 @@ class TrackersViewController: UIViewController {
         self.present(viewController, animated: true)
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
         self.currentDate = selectedDate
     }
     
-    @objc func filterButtonTapped(){}
+    @objc private func filterButtonTapped(){}
 }
 
 
@@ -305,9 +305,9 @@ extension TrackersViewController: UICollectionViewDataSource {
         let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! TrackerSupplementaryView
         if id == "header" {
             print(trackersForCurrentDate[indexPath.section].title)
-            view.titleLabel.text = trackersForCurrentDate[indexPath.section].title
+            view.configHeader(title: trackersForCurrentDate[indexPath.section].title)
         } else {
-            view.titleLabel.text = ""
+            view.configHeader(title: "")
         }
         return view
     }
