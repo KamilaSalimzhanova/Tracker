@@ -269,8 +269,11 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     private func checkFormValidity() -> Bool {
-        let isDataFilled = !trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear
-        return isDataFilled
+        if regular {
+            return (!trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear)
+        } else {
+            return (!trackerTitle.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear)
+        }
     }
     
     
