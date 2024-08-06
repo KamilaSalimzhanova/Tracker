@@ -14,9 +14,17 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.tabBar.backgroundColor = .white
-        //trackersViewController.currentDate = Date()
         self.setupViewControllers()
-        //self.setupNavigationBar()
+        let separator = UIView()
+        separator.backgroundColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
+        view.addSubview(separator)
+        separator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            separator.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            separator.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            separator.bottomAnchor.constraint(equalTo: tabBar.topAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 1)
+        ])
     }
     
     private func setupViewControllers() {
