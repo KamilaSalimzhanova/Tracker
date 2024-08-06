@@ -3,7 +3,7 @@ import UIKit
 
 final class TrackerTypeViewController: UIViewController {
     
-    var trackerViewController: TrackersViewController?
+    weak var trackerViewController: TrackersViewController?
     
     private lazy var habbitButton: UIButton = {
         let habbitButton = UIButton(type: .system)

@@ -96,6 +96,7 @@ final class ScheduleViewController: UIViewController {
             delegate.trackerSchedule = trackerSchedule
             delegate.scheduleTitle = scheduleSubtitle.joined(separator: ", ")
             delegate.categoryAndScheduleTableView.reloadData()
+            delegate.updateCreateButtonState()
             self.dismiss(animated: true)
         }
     }

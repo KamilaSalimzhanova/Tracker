@@ -21,12 +21,20 @@ class TrackersViewController: UIViewController {
     var horizontalSpacing: Int = 9
     var verticalSpacing: Int = 0
     
+    private let dateLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .black
+        label.font = UIFont.systemFont(ofSize: 17)
+        label.textAlignment = .center
+        return label
+    }()
+    
     var currentDate: Date? {
         didSet {
             updateTrackers(text: nil)
         }
     }
-    
+
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -102,9 +110,15 @@ class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.view.backgroundColor = .white
+        self.currentDate = Date()
         addSubviews()
         setStubView()
         makeConstraints()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        setupNavigationBar()
     }
     
     private func addSubviews() {
@@ -171,7 +185,6 @@ class TrackersViewController: UIViewController {
             return
         }
         let weekday = DateFormatter.weekday(date: currentDate)
-        
         print(weekday)
         
         trackersForCurrentDate = categories.compactMap { category in
@@ -193,6 +206,52 @@ class TrackersViewController: UIViewController {
         collectionView.isHidden = trackersForCurrentDate.isEmpty
         filterButton.isHidden = trackersForCurrentDate.isEmpty
     }
+    
+    private func setupNavigationBar() {
+        self.navigationItem.title = nil
+        let leftItem = UIImage(named: "Plus") ?? UIImage(systemName: "plus")
+        self.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            image: leftItem,
+            style: .plain,
+            target: self,
+            action: #selector(addTarget)
+        )
+        self.navigationItem.leftBarButtonItem?.tintColor = .ypBlack
+        let datePicker = setUpDatePicker()
+        let datePickerItem = UIBarButtonItem(customView: datePicker)
+        self.navigationItem.rightBarButtonItem = datePickerItem
+        self.navigationItem.rightBarButtonItem?.customView?.layer.cornerRadius = 8
+    }
+    
+    private func setUpDatePicker() -> UIDatePicker {
+        let datePicker: UIDatePicker = UIDatePicker()
+        datePicker.preferredDatePickerStyle = .compact
+        datePicker.datePickerMode = .date
+        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            datePicker.widthAnchor.constraint(equalToConstant: 100),
+            datePicker.heightAnchor.constraint(equalToConstant: 34)])
+        datePicker.addTarget(self,
+                             action: #selector(datePickerValueChanged(_:)),
+                             for: .valueChanged)
+
+        return datePicker
+    }
+    
+    @objc func addTarget() {
+        print("Add target")
+        let viewController = TrackerTypeViewController()
+        viewController.trackerViewController = self
+        viewController.modalPresentationStyle = .popover
+        self.present(viewController, animated: true)
+    }
+    
+    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+        let selectedDate = sender.date
+        self.currentDate = selectedDate
+    }
+    
     @objc func filterButtonTapped(){}
 }
 

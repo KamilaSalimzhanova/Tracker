@@ -12,8 +12,11 @@ final class TrackerCreateViewController: UIViewController {
     var trackerSchedule: [String] = []
     var trackerTitle = ""
     var scheduleTitle: String?
-    var emojiSelected: String = "🙂"
-    var colorSelected: UIColor = .ypPink
+    var emojiSelected: String = ""
+    var colorSelected: UIColor = .clear
+    var selectedEmojiIndex: IndexPath?
+    var selectedColorIndex: IndexPath?
+    
     private let sectionHeader = ["Emoji","Цвет"]
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     
@@ -259,6 +262,18 @@ final class TrackerCreateViewController: UIViewController {
         ])
     }
     
+    func updateCreateButtonState() {
+        let isValid = checkFormValidity()
+        createButton.isEnabled = isValid
+        createButton.backgroundColor = isValid ? UIColor.activeColor : UIColor.inactiveColor
+    }
+    
+    private func checkFormValidity() -> Bool {
+        let isDataFilled = !trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear
+        return isDataFilled
+    }
+    
+    
     @objc func createTracker(){
         let schedule = trackerSchedule
         guard let category = self.category else { return }
@@ -279,6 +294,7 @@ final class TrackerCreateViewController: UIViewController {
         let text = sender.text ?? ""
         trackerTitle = text
         print(text)
+        self.updateCreateButtonState()
     }
 }
 
@@ -320,6 +336,7 @@ extension TrackerCreateViewController: UITableViewDelegate {
             viewController.modalPresentationStyle = .popover
             self.present(viewController, animated: true)
         }
+        self.updateCreateButtonState()
     }
 }
 
@@ -368,7 +385,7 @@ extension TrackerCreateViewController: UICollectionViewDataSource {
         return headerView
     }
 }
-    
+
 
 extension TrackerCreateViewController: UICollectionViewDelegateFlowLayout {
     
@@ -394,32 +411,50 @@ extension TrackerCreateViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell
-            
-        UIView.animate(withDuration: 0.3) {
-                if indexPath.section == 0 {
-                    cell?.layer.cornerRadius = 16
-                    cell?.clipsToBounds = true
-                    cell?.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
-                    self.emojiSelected = self.emoji[indexPath.row]
-                } else {
-                    cell?.layer.cornerRadius = 8
-                    cell?.layer.borderWidth = 3
-                    cell?.layer.borderColor = colorsBorder[indexPath.row].cgColor
-                    self.colorSelected = self.colors[indexPath.row]
-                }
-            }
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        let cell = collectionView.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell
+        guard let cell = collectionView.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell else {
+            print("Cell is nil")
+            return
+        }
         UIView.animate(withDuration: 0.3) {
             if indexPath.section == 0 {
-                cell?.backgroundColor = .ypWhite
-            } else {
-                cell?.layer.cornerRadius = 0
-                cell?.layer.borderWidth = 0
+                if let previouslySelectedIndex = self.selectedEmojiIndex {
+                    if previouslySelectedIndex == indexPath {
+                        cell.backgroundColor = .ypWhite
+                        self.emojiSelected = ""
+                        self.selectedEmojiIndex = nil
+                        self.updateCreateButtonState()
+                        return
+                    }
+                    let previousCell = collectionView.cellForItem(at: previouslySelectedIndex) as? EmojiAndColorCollectionViewCell
+                    previousCell?.backgroundColor = .ypWhite
+                }
+                cell.layer.cornerRadius = 16
+                cell.clipsToBounds = true
+                cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 1)
+                self.emojiSelected = self.emoji[indexPath.row]
+                self.selectedEmojiIndex = indexPath
+            } else if indexPath.section == 1 {
+                if let previouslySelectedIndex = self.selectedColorIndex {
+                    if previouslySelectedIndex == indexPath {
+                        cell.layer.cornerRadius = 0
+                        cell.layer.borderWidth = 0
+                        self.colorSelected = .clear
+                        self.selectedColorIndex = nil
+                        self.updateCreateButtonState()
+                        return
+                    }
+                    let previousCell = collectionView.cellForItem(at: previouslySelectedIndex) as? EmojiAndColorCollectionViewCell
+                    previousCell?.layer.cornerRadius = 0
+                    previousCell?.layer.borderWidth = 0
+                }
+                cell.layer.cornerRadius = 8
+                cell.layer.borderWidth = 3
+                cell.layer.borderColor = colorsBorder[indexPath.row].cgColor
+                self.colorSelected = self.colors[indexPath.row]
+                self.selectedColorIndex = indexPath
             }
+            print(self.emojiSelected, self.colorSelected)
+            self.updateCreateButtonState()
         }
     }
 }
