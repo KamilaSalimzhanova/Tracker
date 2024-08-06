@@ -8,7 +8,7 @@ final class TrackerCreateViewController: UIViewController {
     var regular: Bool
     var trackerTypeViewController: TrackerTypeViewController
     var delegate: HabbitCreateViewControllerProtocol?
-    var category: String? = "Танцы"
+    var category: String?
     var trackerSchedule: [String] = []
     var trackerTitle = ""
     var scheduleTitle: String?
@@ -197,6 +197,7 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        self.category = regular ? "Важное" : "Нерегулярное событие"
         addSubviews()
         makeConstraints()
     }
@@ -278,6 +279,17 @@ final class TrackerCreateViewController: UIViewController {
     
     
     @objc func createTracker(){
+        if !regular {
+            trackerSchedule = [
+                Weekdays.Monday.rawValue,
+                Weekdays.Tuesday.rawValue,
+                Weekdays.Wednesday.rawValue,
+                Weekdays.Thursday.rawValue,
+                Weekdays.Friday.rawValue,
+                Weekdays.Saturday.rawValue,
+                Weekdays.Sunday.rawValue
+            ]
+        }
         let schedule = trackerSchedule
         guard let category = self.category else { return }
         let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule)
