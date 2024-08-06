@@ -57,7 +57,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     let dayCountLabel: UILabel = {
         let dayCountLabel = UILabel()
         dayCountLabel.text = "1 день"
-        dayCountLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        dayCountLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         dayCountLabel.textColor = .ypBlack
         return dayCountLabel
     }()
