@@ -3,9 +3,6 @@ import UIKit
 
 final class TabBarViewController: UITabBarController {
     
-    private let trackersViewController = TrackersViewController()
-    private let statisticViewController = StatisticViewController()
-    
     private enum TabBarItem: String {
         case trackers = "Трекеры"
         case statistics = "Статистика"
@@ -13,6 +10,7 @@ final class TabBarViewController: UITabBarController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         self.tabBar.backgroundColor = .white
         self.setupViewControllers()
         let separator = UIView()
@@ -28,6 +26,10 @@ final class TabBarViewController: UITabBarController {
     }
     
     private func setupViewControllers() {
+        
+        let trackersViewController = TrackersViewController()
+        let statisticViewController = StatisticViewController()
+        
         let trackersNavigationController = UINavigationController(rootViewController: trackersViewController)
         
         trackersNavigationController.tabBarItem = UITabBarItem(

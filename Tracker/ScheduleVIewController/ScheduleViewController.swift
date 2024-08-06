@@ -37,7 +37,6 @@ final class ScheduleViewController: UIViewController {
         return button
     }()
     
-    
     private lazy var scheduleTableView: UITableView = {
         let table = UITableView()
         view.layer.masksToBounds = true
@@ -91,7 +90,7 @@ final class ScheduleViewController: UIViewController {
         ])
     }
     
-    @objc func readyButtonTapped(){
+    @objc private func readyButtonTapped(){
         if let delegate = self.delegate {
             delegate.trackerSchedule = trackerSchedule
             delegate.scheduleTitle = scheduleSubtitle.joined(separator: ", ")
@@ -120,7 +119,7 @@ extension ScheduleViewController: UITableViewDataSource {
         return cell
     }
     
-    @objc func switchToggle(_ sender: UISwitch){
+    @objc private func switchToggle(_ sender: UISwitch){
         if sender.isOn {
             trackerSchedule.append(schedule[sender.tag])
             scheduleSubtitle.append(scheduleSubtitlesArray[sender.tag])

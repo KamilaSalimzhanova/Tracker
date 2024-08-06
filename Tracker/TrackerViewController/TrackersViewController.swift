@@ -16,10 +16,10 @@ class TrackersViewController: UIViewController {
                        )
     ]
     
-    var numberOfCellsInRow: Int = 2
-    var height: Int = 148
-    var horizontalSpacing: Int = 9
-    var verticalSpacing: Int = 0
+    let numberOfCellsInRow: Int = 2
+    let height: Int = 148
+    let horizontalSpacing: Int = 9
+    let verticalSpacing: Int = 0
     
     private let dateLabel: UILabel = {
         let label = UILabel()
@@ -227,7 +227,6 @@ class TrackersViewController: UIViewController {
         let datePicker: UIDatePicker = UIDatePicker()
         datePicker.preferredDatePickerStyle = .compact
         datePicker.datePickerMode = .date
-        datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
             datePicker.widthAnchor.constraint(equalToConstant: 100),

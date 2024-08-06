@@ -133,7 +133,7 @@ final class CategoryViewController: UIViewController {
         ])
     }
     
-    @objc func addCategoryButtonTapped() {}
+    @objc private func addCategoryButtonTapped() {}
 }
 
 extension CategoryViewController: UITableViewDataSource {
