@@ -14,7 +14,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     var isCompletedToday: Bool = false
     var count = 0
     
-    var delegate: TrackerCollectionViewCellProtocol?
+    weak var delegate: TrackerCollectionViewCellProtocol?
     
     private let noteView: UIView = {
         let noteView = UIView()

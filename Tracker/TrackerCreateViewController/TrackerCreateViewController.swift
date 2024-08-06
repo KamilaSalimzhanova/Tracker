@@ -1,13 +1,14 @@
 import UIKit
 
-protocol HabbitCreateViewControllerProtocol{
+protocol HabbitCreateViewControllerProtocol: AnyObject {
     func createTracker(category: String, tracker: Tracker)
 }
 
 final class TrackerCreateViewController: UIViewController {
-    var regular: Bool
-    var trackerTypeViewController: TrackerTypeViewController
-    var delegate: HabbitCreateViewControllerProtocol?
+    weak var delegate: HabbitCreateViewControllerProtocol?
+    let trackerTypeViewController: TrackerTypeViewController
+
+    let regular: Bool
     var category: String?
     var trackerSchedule: [String] = []
     var trackerTitle = ""
