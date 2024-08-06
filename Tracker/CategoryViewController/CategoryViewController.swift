@@ -1,14 +1,13 @@
 import UIKit
 
 final class CategoryViewController: UIViewController {
-    
-    private let trackersViewController = TrackersViewController()
+
     weak var delegate: TrackerCreateViewController?
     private var category: String = ""
     private var selectedCategories: [String] = []
     private let checkmarkImage = UIImage(named: "checkmark")
     
-    //TO_DO
+
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -55,7 +54,8 @@ final class CategoryViewController: UIViewController {
     
     
     private var categoryTitles: [String] {
-        trackersViewController.categories.map { $0.title }
+        let trackersViewController = TrackersViewController()
+        return trackersViewController.categories.map { $0.title }
     }
     
     private lazy var categoryTableView: UITableView = {
@@ -142,7 +142,7 @@ extension CategoryViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "categoriesTableCell", for: indexPath)
         cell.textLabel?.text = categoryTitles[indexPath.row]
         cell.backgroundColor = .rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
         return cell

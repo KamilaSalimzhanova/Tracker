@@ -2,14 +2,14 @@ import UIKit
 
 class EmojiAndColorCollectionViewCell: UICollectionViewCell {
     
-    lazy var emoji: UILabel = {
+    private lazy var emoji: UILabel = {
         let emoji = UILabel()
         emoji.text = "😄"
         emoji.font = UIFont.systemFont(ofSize: 32, weight: .bold)
         return emoji
     }()
     
-    lazy var color: UIView = {
+    private lazy var color: UIView = {
         let color = UIView()
         color.layer.cornerRadius = 8
         color.clipsToBounds = true
@@ -20,6 +20,13 @@ class EmojiAndColorCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         addSubviews()
         makeConstrains()
+    }
+    
+    func configCell(isHidden: Bool, text: String, color: UIColor) {
+        self.emoji.isHidden = !isHidden
+        self.color.isHidden = isHidden
+        self.emoji.text = text
+        self.color.backgroundColor = color
     }
     
 

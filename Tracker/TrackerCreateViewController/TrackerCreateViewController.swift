@@ -374,10 +374,7 @@ extension TrackerCreateViewController: UICollectionViewDataSource {
         guard let cell = cell else { return UICollectionViewCell() }
         let section = indexPath.section
         let emojiIsHidden = section == 0
-        cell.emoji.isHidden = !emojiIsHidden
-        cell.color.isHidden = emojiIsHidden
-        cell.emoji.text = emoji[indexPath.row]
-        cell.color.backgroundColor = colors[indexPath.row]
+        cell.configCell(isHidden: emojiIsHidden, text: emoji[indexPath.row], color: colors[indexPath.row])
         return cell
     }
     
