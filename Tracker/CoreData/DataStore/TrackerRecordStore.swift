@@ -21,7 +21,7 @@ final class TrackerRecordStore {
     }
     
     func deleteRecord(id: UUID, currentDate: Date) {
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID)
         if let recordsData = try? context.fetch(request) {
             recordsData.forEach { record in
@@ -36,13 +36,13 @@ final class TrackerRecordStore {
         saveContext()
     }
     func isCompletedTrackerRecords(id: UUID, date: Date) -> Bool {
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID, #keyPath(TrackerRecordCoreData.trackerDate), date as NSDate)
         guard let recordsData = try? context.fetch(request) else {return false}
         return !recordsData.isEmpty
     }
     func completedTracker(id: UUID) -> Int {
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let request = TrackerRecordCoreData.fetchRequest()
         request.resultType = .countResultType
         request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID)
         
@@ -51,7 +51,7 @@ final class TrackerRecordStore {
         } else { return 0 }
     }
     func loadTrackers() -> [TrackerRecord] {
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let request = TrackerRecordCoreData.fetchRequest()
         guard let recordsData = try? context.fetch(request) else {return []}
         var trackerRecords: [TrackerRecord] = []
         recordsData.forEach {record in
@@ -62,7 +62,7 @@ final class TrackerRecordStore {
     }
     
     func isTrackerCompleted(id: UUID, currentDate: Date) -> Bool{
-        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        let request = TrackerRecordCoreData.fetchRequest()
         
         request.predicate = NSPredicate(format: "%K == %@ AND %K < %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID, #keyPath(TrackerRecordCoreData.trackerDate), currentDate as NSDate)
         

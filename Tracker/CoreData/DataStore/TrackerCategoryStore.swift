@@ -24,7 +24,7 @@ final class TrackerCategoryStore: NSObject {
         let currentDate = self.currentDate ?? Date()
         let weekday = DateFormatter.weekday(date: currentDate)
         let searchText = (self.searchText).lowercased()
-        let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        let fetchRequest = TrackerCoreData.fetchRequest()
         if searchText == "" {
             fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekday)
         } else {
@@ -50,7 +50,7 @@ final class TrackerCategoryStore: NSObject {
         trackerData.emoji = tracker.emoji
         trackerData.color = UIColorMarshalling.shared.hexString(from: tracker.color)
         trackerData.schedule = tracker.schedule.joined(separator: ",")
-        let request = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
+        let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == '\(categoryName)'", #keyPath(TrackerCategoryCoreData.title))
         if let category = try? context.fetch(request).first {
             trackerData.trackerCategory = category
@@ -67,14 +67,13 @@ final class TrackerCategoryStore: NSObject {
             fetchedResultController.fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekday)
             try? fetchedResultController.performFetch()
         } else {
-            fetchedResultController.fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[n] AND %K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekday, #keyPath(TrackerCoreData.name), searchedText)
+            fetchedResultController.fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[c] %@ AND %K CONTAINS[c] %@", #keyPath(TrackerCoreData.schedule), weekday, #keyPath(TrackerCoreData.name), searchedText)
             try? fetchedResultController.performFetch()
         }
     }
     
     private func printCategoriesAndTrackers() {
-        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
-        
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         do {
             let categories = try context.fetch(fetchRequest)
             
@@ -142,7 +141,9 @@ final class TrackerCategoryStore: NSObject {
     
     func fetchData() -> [TrackerCategory] {
         var trackerCategories: [TrackerCategory] = []
-        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        let request = TrackerCoreData.fetchRequest()
+
+        
         guard let trackerCoreData = try? context.fetch(request) else {return []}
         trackerCoreData.forEach( {tracker in
             let category = tracker.trackerCategory?.title ?? ""
@@ -183,7 +184,8 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func loadCurrentTrackers(weekday: String, searchText: String) -> [TrackerCategory] {
-        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        let request = TrackerCoreData.fetchRequest()
+
         if searchText == "" {
             request.predicate = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekday)
         } else {
@@ -235,7 +237,8 @@ final class TrackerCategoryStore: NSObject {
         let currentDate = self.currentDate ?? Date()
         let weekday = DateFormatter.weekday(date: currentDate)
         let searchedText = (self.searchText).lowercased()
-        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        let request = TrackerCoreData.fetchRequest()
+
         if searchedText == "" {
             request.predicate = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekday)
         } else {
@@ -247,17 +250,9 @@ final class TrackerCategoryStore: NSObject {
     
     func loadNotRegularIDTrackers() -> [UUID] {
         var uuids: [UUID] = []
-        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
-        let allDays = [
-            Weekdays.Monday.rawValue,
-            Weekdays.Tuesday.rawValue,
-            Weekdays.Wednesday.rawValue,
-            Weekdays.Thursday.rawValue,
-            Weekdays.Friday.rawValue,
-            Weekdays.Saturday.rawValue,
-            Weekdays.Sunday.rawValue
-        ]
-        let allDaysString = allDays.joined(separator: ",")
+        let request = TrackerCoreData.fetchRequest()
+        
+        let allDaysString = Weekdays.all()
         request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.schedule), allDaysString)
         let trackerCoreData = try? context.fetch(request)
         guard let trackerCoreData = trackerCoreData else {return []}
