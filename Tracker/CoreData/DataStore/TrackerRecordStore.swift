@@ -5,7 +5,7 @@ final class TrackerRecordStore {
     private let context: NSManagedObjectContext
     
     convenience init(){
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataStore().getContext()
         self.init(context: context)
     }
     

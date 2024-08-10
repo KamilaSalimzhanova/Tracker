@@ -11,7 +11,7 @@ final class TrackerStore: NSObject {
     private weak var delegate: TrackersViewController?
     
     convenience init(delegate: TrackersViewController){
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataStore().getContext()
         self.init(context: context, delegate: delegate)
     }
     
@@ -83,24 +83,24 @@ final class TrackerStore: NSObject {
         }
     }
     
-//    private var numberOfSections: Int {
-//        fetchResultController.sections?.count ?? 0
-//    }
-//
-//    private func numberOfItemsInSection(_ section: Int) -> Int {
-//        fetchResultController.sections?[section].numberOfObjects ?? 0
-//    }
-//
-//    private func object(at indexPath: IndexPath) -> Tracker {
-//        let trackerCoreData = fetchResultController.object(at: indexPath)
-//        let tracker = Tracker(
-//            trackerId: trackerCoreData.trackerId ?? UUID(),
-//            name: trackerCoreData.name ?? "",
-//            color:  UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
-//            emoji: trackerCoreData.emoji ?? "😂",
-//            schedule: trackerCoreData.schedule?.split(separator: ",") as? [String] ?? ["Воскресенье"])
-//        return tracker
-//    }
+    private var numberOfSections: Int {
+        fetchResultController.sections?.count ?? 0
+    }
+
+    private func numberOfItemsInSection(_ section: Int) -> Int {
+        fetchResultController.sections?[section].numberOfObjects ?? 0
+    }
+
+    private func object(at indexPath: IndexPath) -> Tracker {
+        let trackerCoreData = fetchResultController.object(at: indexPath)
+        let tracker = Tracker(
+            trackerId: trackerCoreData.trackerId ?? UUID(),
+            name: trackerCoreData.name ?? "",
+            color:  UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
+            emoji: trackerCoreData.emoji ?? "😂",
+            schedule: trackerCoreData.schedule?.split(separator: ",") as? [String] ?? ["Воскресенье"])
+        return tracker
+    }
 }
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {

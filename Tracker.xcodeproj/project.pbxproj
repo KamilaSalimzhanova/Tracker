@@ -36,6 +36,7 @@
 		8EAAAC332C641A5400B18D85 /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAAC322C641A5400B18D85 /* TrackerStore.swift */; };
 		8EAAAC352C641A5D00B18D85 /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAAC342C641A5D00B18D85 /* TrackerCategoryStore.swift */; };
 		8EAAAC372C641A6400B18D85 /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAAC362C641A6400B18D85 /* TrackerRecordStore.swift */; };
+		8EC6BCC32C6810B800DCD61A /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC6BCC22C6810B800DCD61A /* DataStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -70,6 +71,7 @@
 		8EAAAC322C641A5400B18D85 /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		8EAAAC342C641A5D00B18D85 /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		8EAAAC362C641A6400B18D85 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
+		8EC6BCC22C6810B800DCD61A /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +238,7 @@
 				8EAAAC322C641A5400B18D85 /* TrackerStore.swift */,
 				8EAAAC342C641A5D00B18D85 /* TrackerCategoryStore.swift */,
 				8EAAAC362C641A6400B18D85 /* TrackerRecordStore.swift */,
+				8EC6BCC22C6810B800DCD61A /* DataStore.swift */,
 			);
 			path = DataStore;
 			sourceTree = "<group>";
@@ -331,6 +334,7 @@
 				8E8540D22C5E648600C4F4CF /* StatisticViewController.swift in Sources */,
 				8E8541002C5FB35600C4F4CF /* TrackerCreateViewController.swift in Sources */,
 				8E8540E72C5EB2CE00C4F4CF /* TrackerRecord .swift in Sources */,
+				8EC6BCC32C6810B800DCD61A /* DataStore.swift in Sources */,
 				8E8540F02C5EC83100C4F4CF /* Int+Extension.swift in Sources */,
 				8EAAAC372C641A6400B18D85 /* TrackerRecordStore.swift in Sources */,
 				8E8541062C5FBF1A00C4F4CF /* EmojiAndColorsSupplementaryViewCell.swift in Sources */,

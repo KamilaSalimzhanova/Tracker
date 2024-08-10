@@ -9,7 +9,7 @@ final class TrackerCategoryStore: NSObject {
     private var index: IndexPath?
     
     convenience init(delegate: TrackersViewController, currentDate: Date?, searchText: String){
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        let context = DataStore().getContext()
         self.init(context: context, delegate: delegate, currentDate: currentDate, searchText: searchText)
     }
     
