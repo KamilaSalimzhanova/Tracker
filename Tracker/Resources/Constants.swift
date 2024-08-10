@@ -1,6 +1,7 @@
 import UIKit
 
-enum Weekdays: String {
+
+enum Weekdays: String, CaseIterable {
     case Sunday = "Воскресенье"
     case Monday = "Понедельник"
     case Tuesday = "Вторник"
@@ -8,6 +9,10 @@ enum Weekdays: String {
     case Thursday = "Четверг"
     case Friday = "Пятница"
     case Saturday = "Суббота"
+    
+    static func all() -> [String] {
+        Weekdays.allCases.map(\.rawValue)
+    }
 }
 
 
