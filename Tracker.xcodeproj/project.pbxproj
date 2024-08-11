@@ -39,6 +39,7 @@
 		8EC6BCC32C6810B800DCD61A /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC6BCC22C6810B800DCD61A /* DataStore.swift */; };
 		8EE18A5A2C68F108003830E9 /* newCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE18A592C68F108003830E9 /* newCategoryViewController.swift */; };
 		8EE18A5C2C68F275003830E9 /* CategoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */; };
+		8EE18A622C691B53003830E9 /* CategoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE18A612C691B53003830E9 /* CategoryViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,6 +77,7 @@
 		8EC6BCC22C6810B800DCD61A /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
 		8EE18A592C68F108003830E9 /* newCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = newCategoryViewController.swift; sourceTree = "<group>"; };
 		8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewCell.swift; sourceTree = "<group>"; };
+		8EE18A612C691B53003830E9 /* CategoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -209,6 +211,7 @@
 				8E85410C2C601AE300C4F4CF /* CategoryViewController.swift */,
 				8EE18A592C68F108003830E9 /* newCategoryViewController.swift */,
 				8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */,
+				8EE18A612C691B53003830E9 /* CategoryViewModel.swift */,
 			);
 			path = CategoryViewController;
 			sourceTree = "<group>";
@@ -324,6 +327,7 @@
 				8E8540D02C5E62FA00C4F4CF /* TabBarVIewController.swift in Sources */,
 				8E8541082C5FBF8500C4F4CF /* TrackerCreateViewCell.swift in Sources */,
 				8E8540D52C5E691B00C4F4CF /* UIColor+Extensions.swift in Sources */,
+				8EE18A622C691B53003830E9 /* CategoryViewModel.swift in Sources */,
 				8EE18A5C2C68F275003830E9 /* CategoryTableViewCell.swift in Sources */,
 				8E8540DE2C5E7B7C00C4F4CF /* Date+Extensions.swift in Sources */,
 				8E8540EE2C5EC66500C4F4CF /* TrackerSupplementaryView.swift in Sources */,

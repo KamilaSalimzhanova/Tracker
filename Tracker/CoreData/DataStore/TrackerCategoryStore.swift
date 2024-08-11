@@ -99,7 +99,7 @@ final class TrackerCategoryStore: NSObject {
         }
         return newCategory
     }
-    private func fetchAllCategories() -> [TrackerCategoryCoreData] {
+    func fetchAllCategories() -> [TrackerCategoryCoreData] {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         do {
             let categories = try context.fetch(fetchRequest)
@@ -110,6 +110,14 @@ final class TrackerCategoryStore: NSObject {
             print("Could not fetch categories. \(error), \(error.userInfo)")
             return []
         }
+    }
+    
+    func decodingCategory(trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
+        guard let title = trackerCategoryCoreData.title else { return nil }
+        let trackers = (trackerCategoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {
+            trackerStore.decodingTracker(trackerCoreData: $0)
+        } ?? []
+        return TrackerCategory(title: title, trackers: trackers)
     }
     func getCategories() -> [TrackerCategory] {
         let categories: [TrackerCategory] = fetchAllCategories().map { categoryCoreData in

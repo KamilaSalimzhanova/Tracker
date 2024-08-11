@@ -6,6 +6,8 @@ protocol CategoryViewControllerDelegate: AnyObject {
 
 final class CategoryViewController: UIViewController {
     
+    private var viewModel: CategoryViewModel!
+    
     weak var delegate: CategoryViewControllerDelegate?
     private var categories: [TrackerCategory] = []
     private var trackerCategoryStore: TrackerCategoryStore?
@@ -63,14 +65,19 @@ final class CategoryViewController: UIViewController {
     
     private lazy var categoryTableView: UITableView = {
         let tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
+        tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
+        tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
+        tableView.backgroundColor = .ypWhite
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.reuseIdentifier)
         tableView.rowHeight = 75
+        tableView.separatorInset.right = 16
+        tableView.separatorInset.left = 16
+        tableView.separatorColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
         tableView.isScrollEnabled = true
         tableView.showsVerticalScrollIndicator = false
-        tableView.backgroundColor = .ypWhite
-        tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.reuseIdentifier)
         return tableView
     }()
     
@@ -78,11 +85,24 @@ final class CategoryViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         let trackers = TrackersViewController()
-        trackerCategoryStore = TrackerCategoryStore(delegate: trackers, currentDate: trackers.currentDate, searchText: "")
+        viewModel = CategoryViewModel(trackerCategoryStore: TrackerCategoryStore(delegate: trackers, currentDate: trackers.currentDate, searchText: ""))
         addSubviews()
         setStubView()
         makeConstraints()
+        setupBindings()
         loadCategories()
+    }
+    
+    private func setupBindings() {
+        viewModel.updateUI = { [weak self] categories in
+            self?.categoryTableView.reloadData()
+            self?.updateMainScreenContent()
+        }
+        
+        viewModel.selectCategory = { [weak self] category in
+            guard let self = self else { return }
+            self.delegate?.categoryScreen(self, didSelectedCategory: category)
+        }
     }
     
     private func addSubviews(){
@@ -138,16 +158,18 @@ final class CategoryViewController: UIViewController {
         ])
     }
     private func updateMainScreenContent() {
-        let hasCategories = !categories.isEmpty
-        categoryTableView.isHidden = !hasCategories
-        stubView.isHidden = hasCategories
+        if viewModel.numberOfCategories() == 0 {
+            categoryTableView.isHidden = true
+            stubView.isHidden = false
+        } else {
+            categoryTableView.isHidden = false
+            stubView.isHidden = true
+        }
     }
     
     private func loadCategories() {
-        categories = trackerCategoryStore?.getCategories() ?? []
-        print(categories)
-        updateMainScreenContent()
-        categoryTableView.reloadData()
+        viewModel.loadCategories()
+        
     }
     @objc private func addCategoryButtonTapped() {
         let viewController = NewCategoryViewController()
@@ -159,26 +181,21 @@ final class CategoryViewController: UIViewController {
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(categories.count)
-        return categories.count
+        print(viewModel.numberOfCategories())
+        return viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.reuseIdentifier, for: indexPath) as! CategoryTableViewCell
-        let category = categories[indexPath.row]
-        let isSelected = category.title == selectedCategoryTitle
-        cell.configure(category: category, isSelected: isSelected)
+        let category = viewModel.category(at: indexPath.row)
+        cell.configure(category: category, isSelected: false)
         print(cell)
         return cell
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCategory = categories[indexPath.row]
-        selectedCategoryTitle = selectedCategory.title
-        tableView.reloadData()
-        print(selectedCategory.title)
-        delegate?.categoryScreen(self, didSelectedCategory: selectedCategory)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+        viewModel.selectCategory(at: indexPath.row)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             self.dismiss(animated: true)
         }
     }
@@ -188,12 +205,6 @@ extension CategoryViewController: UITableViewDelegate {}
 
 extension CategoryViewController: NewCategoryViewControllerDelegateProtocol {
     func categoryScreen(_ screen: NewCategoryViewController, didAddCategoryWithTitle title: String) {
-        let newCategory = TrackerCategory(title: title, trackers: [])
-        trackerCategoryStore?.createCategory(newCategory)
-        categories = trackerCategoryStore?.getCategories() ?? []
-        print("New category added: \(title)")
-        print("Updated categories: \(categories)")
-        updateMainScreenContent()
-        categoryTableView.reloadData()
+        viewModel.addCategory(withTitle: title)
     }
 }
