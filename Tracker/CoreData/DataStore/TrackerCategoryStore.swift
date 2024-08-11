@@ -43,13 +43,6 @@ final class TrackerCategoryStore: NSObject {
         return fetchedResultController
     }()
     
-//    func createCategory(_ category: TrackerCategory) {
-//        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else { return }
-//        let categoryEntity = TrackerCategoryCoreData(entity: entity, insertInto: context)
-//        categoryEntity.title = category.title
-//        categoryEntity.trackers = NSSet(array: [])
-//        saveContext()
-//    }
     
     func createCategory(_ category: TrackerCategory) {
         let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
@@ -92,11 +85,7 @@ final class TrackerCategoryStore: NSObject {
         let newCategory = TrackerCategoryCoreData(entity: entity, insertInto: context)
         newCategory.title = title
         newCategory.trackers = NSSet(array: [])
-        do {
-            try context.save()
-        } catch {
-            print("Failed to save context: \(error)")
-        }
+        saveContext()
         return newCategory
     }
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
