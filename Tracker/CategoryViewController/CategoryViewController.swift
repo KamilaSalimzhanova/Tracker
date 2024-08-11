@@ -1,13 +1,16 @@
 import UIKit
 
+protocol CategoryViewControllerDelegate: AnyObject {
+    func categoryScreen(_ screen: CategoryViewController, didSelectedCategory category: TrackerCategory)
+}
+
 final class CategoryViewController: UIViewController {
-
-    weak var delegate: TrackerCreateViewController?
-    private var category: String = ""
-    private var selectedCategories: [String] = []
-    private let checkmarkImage = UIImage(named: "checkmark")
     
-
+    weak var delegate: CategoryViewControllerDelegate?
+    private var categories: [TrackerCategory] = []
+    private var trackerCategoryStore: TrackerCategoryStore?
+    private var selectedCategoryTitle: String?
+    
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -59,26 +62,27 @@ final class CategoryViewController: UIViewController {
     }
     
     private lazy var categoryTableView: UITableView = {
-        let table = UITableView()
-        table.layer.cornerRadius = 16
-        table.backgroundColor = .ypWhite
-        table.dataSource = self
-        table.delegate = self
-        table.register(UITableViewCell.self, forCellReuseIdentifier: "categoriesTableCell")
-        table.rowHeight = 75
-        table.separatorInset.right = 16
-        table.separatorInset.left = 16
-        table.separatorColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
-        table.isScrollEnabled = false
-        return table
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.layer.cornerRadius = 16
+        tableView.rowHeight = 75
+        tableView.isScrollEnabled = true
+        tableView.showsVerticalScrollIndicator = false
+        tableView.backgroundColor = .ypWhite
+        tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.reuseIdentifier)
+        return tableView
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        let trackers = TrackersViewController()
+        trackerCategoryStore = TrackerCategoryStore(delegate: trackers, currentDate: trackers.currentDate, searchText: "")
         addSubviews()
-        if categoryTitles.isEmpty { setStubView() }
+        setStubView()
         makeConstraints()
+        loadCategories()
     }
     
     private func addSubviews(){
@@ -103,10 +107,10 @@ final class CategoryViewController: UIViewController {
             stubView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
             stubView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
             
-            categoryTableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 80),
+            categoryTableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             categoryTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             categoryTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            categoryTableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * categoryTitles.count - 1)),
+            categoryTableView.bottomAnchor.constraint(equalTo: addCategoryButton.topAnchor, constant: -16),
             
             addCategoryButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
             addCategoryButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -118,6 +122,7 @@ final class CategoryViewController: UIViewController {
     private func setStubView() {
         stubView.addSubview(emptyListImageView)
         stubView.addSubview(emptyListText)
+        stubView.isHidden = true
         makeConstraintsStub()
     }
     
@@ -132,24 +137,63 @@ final class CategoryViewController: UIViewController {
             emptyListText.topAnchor.constraint(equalTo: emptyListImageView.bottomAnchor, constant: 8)
         ])
     }
+    private func updateMainScreenContent() {
+        let hasCategories = !categories.isEmpty
+        categoryTableView.isHidden = !hasCategories
+        stubView.isHidden = hasCategories
+    }
     
-    @objc private func addCategoryButtonTapped() {}
+    private func loadCategories() {
+        categories = trackerCategoryStore?.getCategories() ?? []
+        print(categories)
+        updateMainScreenContent()
+        categoryTableView.reloadData()
+    }
+    @objc private func addCategoryButtonTapped() {
+        let viewController = NewCategoryViewController()
+        viewController.delegate = self
+        viewController.modalPresentationStyle = .popover
+        self.present(viewController, animated: true)
+    }
 }
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        categoryTitles.count
+        print(categories.count)
+        return categories.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "categoriesTableCell", for: indexPath)
-        cell.textLabel?.text = categoryTitles[indexPath.row]
-        cell.backgroundColor = .rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
+        let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.reuseIdentifier, for: indexPath) as! CategoryTableViewCell
+        let category = categories[indexPath.row]
+        let isSelected = category.title == selectedCategoryTitle
+        cell.configure(category: category, isSelected: isSelected)
+        print(cell)
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCategory = categories[indexPath.row]
+        selectedCategoryTitle = selectedCategory.title
+        tableView.reloadData()
+        print(selectedCategory.title)
+        delegate?.categoryScreen(self, didSelectedCategory: selectedCategory)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.dismiss(animated: true)
+        }
     }
 }
 
-extension CategoryViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+extension CategoryViewController: UITableViewDelegate {}
+
+extension CategoryViewController: NewCategoryViewControllerDelegateProtocol {
+    func categoryScreen(_ screen: NewCategoryViewController, didAddCategoryWithTitle title: String) {
+        let newCategory = TrackerCategory(title: title, trackers: [])
+        trackerCategoryStore?.createCategory(newCategory)
+        categories = trackerCategoryStore?.getCategories() ?? []
+        print("New category added: \(title)")
+        print("Updated categories: \(categories)")
+        updateMainScreenContent()
+        categoryTableView.reloadData()
     }
 }
