@@ -37,6 +37,8 @@
 		8EAAAC352C641A5D00B18D85 /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAAC342C641A5D00B18D85 /* TrackerCategoryStore.swift */; };
 		8EAAAC372C641A6400B18D85 /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EAAAC362C641A6400B18D85 /* TrackerRecordStore.swift */; };
 		8EC6BCC32C6810B800DCD61A /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EC6BCC22C6810B800DCD61A /* DataStore.swift */; };
+		8EE18A5A2C68F108003830E9 /* newCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE18A592C68F108003830E9 /* newCategoryViewController.swift */; };
+		8EE18A5C2C68F275003830E9 /* CategoryTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -72,6 +74,8 @@
 		8EAAAC342C641A5D00B18D85 /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		8EAAAC362C641A6400B18D85 /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		8EC6BCC22C6810B800DCD61A /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		8EE18A592C68F108003830E9 /* newCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = newCategoryViewController.swift; sourceTree = "<group>"; };
+		8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,6 +207,8 @@
 			isa = PBXGroup;
 			children = (
 				8E85410C2C601AE300C4F4CF /* CategoryViewController.swift */,
+				8EE18A592C68F108003830E9 /* newCategoryViewController.swift */,
+				8EE18A5B2C68F275003830E9 /* CategoryTableViewCell.swift */,
 			);
 			path = CategoryViewController;
 			sourceTree = "<group>";
@@ -313,10 +319,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8EE18A5A2C68F108003830E9 /* newCategoryViewController.swift in Sources */,
 				8E8540E52C5EB2C300C4F4CF /* TrackerCategory.swift in Sources */,
 				8E8540D02C5E62FA00C4F4CF /* TabBarVIewController.swift in Sources */,
 				8E8541082C5FBF8500C4F4CF /* TrackerCreateViewCell.swift in Sources */,
 				8E8540D52C5E691B00C4F4CF /* UIColor+Extensions.swift in Sources */,
+				8EE18A5C2C68F275003830E9 /* CategoryTableViewCell.swift in Sources */,
 				8E8540DE2C5E7B7C00C4F4CF /* Date+Extensions.swift in Sources */,
 				8E8540EE2C5EC66500C4F4CF /* TrackerSupplementaryView.swift in Sources */,
 				8E59AA022C3D530600946A86 /* AppDelegate.swift in Sources */,

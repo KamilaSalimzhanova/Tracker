@@ -38,10 +38,11 @@ final class TrackerStore: NSObject {
         return fetchResultedController
     }()
     
-    private func addNewTracker(_ tracker: Tracker) {
+    func addNewTracker(_ tracker: Tracker) -> TrackerCoreData? {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker)
         saveContext()
+        return trackerCoreData
     }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {

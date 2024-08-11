@@ -9,7 +9,7 @@ final class TrackerCreateViewController: UIViewController {
     let trackerTypeViewController: TrackerTypeViewController
 
     let regular: Bool
-    var category: String?
+    var category: TrackerCategory?
     var trackerSchedule: [String] = []
     var trackerTitle = ""
     var scheduleTitle: String?
@@ -198,9 +198,9 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        self.category = regular ? "Важное" : "Нерегулярное событие"
         addSubviews()
         makeConstraints()
+        
     }
     
     func reloadTable(){
@@ -272,12 +272,11 @@ final class TrackerCreateViewController: UIViewController {
     
     private func checkFormValidity() -> Bool {
         if regular {
-            return (!trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear)
+            return (!trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear && category != nil)
         } else {
-            return (!trackerTitle.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear)
+            return (!trackerTitle.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear && category != nil)
         }
     }
-    
     
     @objc private func createTracker(){
         if !regular {
@@ -295,7 +294,7 @@ final class TrackerCreateViewController: UIViewController {
         guard let category = self.category else { return }
         let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule)
         
-        delegate?.createTracker(category: category, tracker: tracker)
+        delegate?.createTracker(category: category.title, tracker: tracker)
         self.dismiss(animated: false)
         trackerTypeViewController.dismiss(animated: true)
         trackerSchedule = []
@@ -330,7 +329,7 @@ extension TrackerCreateViewController: UITableViewDataSource {
         } else {
             if category != nil {
                 cell.labelStackView.addArrangedSubview(cell.subTitle)
-                cell.subTitle.text = category
+                cell.subTitle.text = category?.title
             }
         }
         cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
@@ -349,6 +348,7 @@ extension TrackerCreateViewController: UITableViewDelegate {
             self.present(viewController, animated: true)
         } else {
             let viewController = CategoryViewController()
+            viewController.delegate = self
             viewController.modalPresentationStyle = .popover
             self.present(viewController, animated: true)
         }
@@ -480,4 +480,12 @@ extension TrackerCreateViewController: UITextFieldDelegate {
         return true
     }
     
+}
+
+extension TrackerCreateViewController: CategoryViewControllerDelegate {
+  func categoryScreen(_ screen: CategoryViewController, didSelectedCategory category: TrackerCategory) {
+      self.category = category
+      categoryAndScheduleTableView.reloadData()
+      updateCreateButtonState()
+  }
 }
