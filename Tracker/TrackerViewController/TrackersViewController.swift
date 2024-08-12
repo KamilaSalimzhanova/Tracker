@@ -189,11 +189,11 @@ class TrackersViewController: UIViewController {
         let weekday = DateFormatter.weekday(date: currentDate)
         print(weekday)
         let searchText = (text ?? "").lowercased()
-        //let notRegularTrackers = trackerCategoryStore.loadNotRegularIDTrackers()
         trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
         collectionView.reloadData()
         collectionView.isHidden = trackerCategoryStore.isTrackersEmpty()
         filterButton.isHidden = trackerCategoryStore.isTrackersEmpty()
+
     }
     
     private func setupNavigationBar() {

@@ -3,6 +3,9 @@ import CoreData
 
 final class DataStore{
     
+    static let shared = DataStore()
+    private init() {}
+    
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "LibraryCoreData")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in

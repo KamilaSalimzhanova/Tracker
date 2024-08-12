@@ -11,7 +11,7 @@ final class TrackerStore: NSObject {
     private weak var delegate: TrackersViewController?
     
     convenience init(delegate: TrackersViewController){
-        let context = DataStore().getContext()
+        let context = DataStore.shared.getContext()
         self.init(context: context, delegate: delegate)
     }
     
@@ -20,13 +20,13 @@ final class TrackerStore: NSObject {
         self.delegate = delegate
     }
     
-
+    
     private lazy var fetchResultController: NSFetchedResultsController<TrackerCoreData> = {
         let fetchRequest = TrackerCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(key: "name", ascending: false)
         ]
-
+        
         let fetchResultedController = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: context,
@@ -38,10 +38,17 @@ final class TrackerStore: NSObject {
         return fetchResultedController
     }()
     
-    private func addNewTracker(_ tracker: Tracker) {
+    func addNewTracker(_ tracker: Tracker) -> TrackerCoreData? {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker)
         saveContext()
+        return trackerCoreData
+    }
+    
+    func decodingTracker(trackerCoreData : TrackerCoreData) -> Tracker? {
+        guard let id = trackerCoreData.trackerId, let title = trackerCoreData.name,
+              let color = trackerCoreData.color, let emoji = trackerCoreData.emoji, let schedule = trackerCoreData.schedule else { return nil }
+        return Tracker(trackerId: id, name: title, color: UIColorMarshalling.shared.color(from: color), emoji: emoji, schedule: schedule.components(separatedBy: ","))
     }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
@@ -86,11 +93,11 @@ final class TrackerStore: NSObject {
     private var numberOfSections: Int {
         fetchResultController.sections?.count ?? 0
     }
-
+    
     private func numberOfItemsInSection(_ section: Int) -> Int {
         fetchResultController.sections?[section].numberOfObjects ?? 0
     }
-
+    
     private func object(at indexPath: IndexPath) -> Tracker {
         let trackerCoreData = fetchResultController.object(at: indexPath)
         let tracker = Tracker(
