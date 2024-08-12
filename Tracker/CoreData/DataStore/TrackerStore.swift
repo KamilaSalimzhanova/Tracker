@@ -11,7 +11,7 @@ final class TrackerStore: NSObject {
     private weak var delegate: TrackersViewController?
     
     convenience init(delegate: TrackersViewController){
-        let context = DataStore().getContext()
+        let context = DataStore.shared.getContext()
         self.init(context: context, delegate: delegate)
     }
     

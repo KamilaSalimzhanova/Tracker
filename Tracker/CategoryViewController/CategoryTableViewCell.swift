@@ -1,6 +1,6 @@
 import UIKit
 
-class CategoryTableViewCell: UITableViewCell {
+final class CategoryTableViewCell: UITableViewCell {
     static let reuseIdentifier = "CategoryTableViewCell"
     
     private let checkmarkImageView: UIImageView = {
@@ -23,6 +23,7 @@ class CategoryTableViewCell: UITableViewCell {
         setupConstraints()
     }
     
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }

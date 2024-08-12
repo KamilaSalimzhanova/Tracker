@@ -7,11 +7,7 @@ protocol CategoryViewControllerDelegate: AnyObject {
 final class CategoryViewController: UIViewController {
     
     private var viewModel: CategoryViewModel!
-    
     weak var delegate: CategoryViewControllerDelegate?
-    private var categories: [TrackerCategory] = []
-    private var trackerCategoryStore: TrackerCategoryStore?
-    private var selectedCategoryTitle: String?
     
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
@@ -90,7 +86,7 @@ final class CategoryViewController: UIViewController {
         setStubView()
         makeConstraints()
         setupBindings()
-        loadCategories()
+        viewModel.viewDidLoad()
     }
     
     private func setupBindings() {
@@ -167,10 +163,6 @@ final class CategoryViewController: UIViewController {
         }
     }
     
-    private func loadCategories() {
-        viewModel.loadCategories()
-        
-    }
     @objc private func addCategoryButtonTapped() {
         let viewController = NewCategoryViewController()
         viewController.delegate = self
