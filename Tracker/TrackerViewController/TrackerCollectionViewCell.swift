@@ -205,12 +205,17 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         let buttonImage = UIImage(named: "Done")
         self.dayCountButton.layer.opacity = 0.7
         self.dayCountButton.setImage(buttonImage, for: .normal)
-        self.dayCountLabel.text = completedDays.dayStringEnding()
+        //self.dayCountLabel.text = completedDays.dayStringEnding()
+        self.dayCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            completedDays
+        )
     }
     func trackerCompleteUndo() {
         let buttonImage = UIImage(named: "Plus button")
         self.dayCountButton.layer.opacity = 1
         self.dayCountButton.setImage(buttonImage, for: .normal)
-        self.dayCountLabel.text = completedDays.dayStringEnding()
+        //self.dayCountLabel.text = completedDays.dayStringEnding()
+        self.dayCountLabel.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: ""), completedDays)
     }
 }
