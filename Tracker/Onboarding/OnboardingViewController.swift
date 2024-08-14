@@ -3,8 +3,10 @@ import UIKit
 final class OnboardingViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
     private let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     lazy var pages: [UIViewController] = {
-        let page1 = PageContentViewController(imageName: "Onboarding1", text: "Отслеживайте только то, что хотите")
-        let page2 = PageContentViewController(imageName: "Onboarding2", text: "Даже если это не литры воды и йога")
+        let onboardingText1 = NSLocalizedString("mainLabelFirst.text", comment: "Text displayed on onboarding stage")
+        let onboardingText2 = NSLocalizedString("mainLabelSecond.text", comment: "Text displayed on onboarding stage")
+        let page1 = PageContentViewController(imageName: "Onboarding1", text: onboardingText1)
+        let page2 = PageContentViewController(imageName: "Onboarding2", text: onboardingText2)
         return [page1, page2]
     }()
     lazy var pageControl: UIPageControl = {

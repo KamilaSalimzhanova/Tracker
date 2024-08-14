@@ -49,7 +49,7 @@ class TrackersViewController: UIViewController {
     
     private lazy var searchBar: UISearchBar = {
         let searchBar: UISearchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
+        searchBar.placeholder = NSLocalizedString("searchBarPlaceholder", comment: "Placeholder for a search bar")
         searchBar.sizeToFit()
         searchBar.isTranslucent = false
         searchBar.backgroundImage = UIImage()
@@ -72,7 +72,7 @@ class TrackersViewController: UIViewController {
     
     private lazy var emptyListText: UILabel = {
         let emptyListText = UILabel()
-        emptyListText.text = "Что будем отслеживать?"
+        emptyListText.text = NSLocalizedString("emptyTrackerStub.text", comment: "Text displayed on stub when tracker collection is empty")
         emptyListText.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         emptyListText.tintColor = .black
         emptyListText.translatesAutoresizingMaskIntoConstraints = false
@@ -87,7 +87,7 @@ class TrackersViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
-        titleLabel.text = "Трекеры"
+        titleLabel.text = NSLocalizedString("trackersViewController.title", comment: "Main title")
         titleLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         titleLabel.textColor = .black
         return titleLabel
@@ -97,7 +97,7 @@ class TrackersViewController: UIViewController {
         let filterButton = UIButton(type: .system)
         filterButton.backgroundColor = .ypBlue
         filterButton.layer.cornerRadius = 12
-        let filterButtonText = "Фильтры"
+        let filterButtonText = NSLocalizedString("filterButtonText", comment: "Text displayed on filter button")
         filterButton.setTitle(filterButtonText, for: .normal)
         filterButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
         filterButton.titleLabel?.tintColor = .ypWhite

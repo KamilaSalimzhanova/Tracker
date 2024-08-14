@@ -18,7 +18,7 @@ final class TrackerCreateViewController: UIViewController {
     var selectedEmojiIndex: IndexPath?
     var selectedColorIndex: IndexPath?
     
-    private let sectionHeader = ["Emoji","Цвет"]
+    private let sectionHeader = ["Emoji", NSLocalizedString("colorSection.text", comment: "Text displayed on a color section header")]
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     
     
@@ -35,9 +35,9 @@ final class TrackerCreateViewController: UIViewController {
     
     private lazy var categoryAndSchedule: [String] = {
         if regular {
-            return ["Категория", "Расписание"]
+            return [NSLocalizedString("category", comment: "Category"), NSLocalizedString("schedule", comment: "schedule")]
         } else {
-            return ["Категория"]
+            return [NSLocalizedString("category", comment: "Category")]
         }
     }()
     
@@ -95,7 +95,7 @@ final class TrackerCreateViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = "Новая привычка"
+        titleLabel.text = NSLocalizedString("trackerCreateViewController.title", comment: "Text displayed as a title on a tracker creation page")
         titleLabel.tintColor = .ypBlack
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
@@ -116,7 +116,8 @@ final class TrackerCreateViewController: UIViewController {
             NSAttributedString.Key.foregroundColor: UIColor.rgbColors(red: 174, green: 175, blue: 180, alpha: 1),
             NSAttributedString.Key.font : UIFont.systemFont(ofSize: 17, weight: .regular)
         ]
-        newTrackerNameTextField.attributedPlaceholder = NSAttributedString(string: "Введите название трекера", attributes: attributes)
+        let placeholderText = NSLocalizedString("trackerNameInputPlaceholder", comment: "Text displayed on a placeholder for input name")
+        newTrackerNameTextField.attributedPlaceholder = NSAttributedString(string: placeholderText, attributes: attributes)
         newTrackerNameTextField.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         newTrackerNameTextField.backgroundColor = .none
         newTrackerNameTextField.addTarget(self,
@@ -148,7 +149,8 @@ final class TrackerCreateViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
-        button.setTitle("Создать", for: .normal)
+        let title = NSLocalizedString("createButton.text", comment: "Text displayed on a create button")
+        button.setTitle(title, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.tintColor = .ypWhite
         button.backgroundColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
@@ -161,7 +163,8 @@ final class TrackerCreateViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.clipsToBounds = true
-        button.setTitle("Отменить", for: .normal)
+        let title = NSLocalizedString("cancelButton.text", comment: "Text displayed on a return button")
+        button.setTitle(title, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.tintColor = .ypPink
         button.backgroundColor = .ypWhite

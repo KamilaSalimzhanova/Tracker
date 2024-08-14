@@ -4,8 +4,8 @@ import UIKit
 final class TabBarViewController: UITabBarController {
     
     private enum TabBarItem: String {
-        case trackers = "Трекеры"
-        case statistics = "Статистика"
+        case trackers
+        case statistics
     }
     
     override func viewDidLoad() {
@@ -33,13 +33,13 @@ final class TabBarViewController: UITabBarController {
         let trackersNavigationController = UINavigationController(rootViewController: trackersViewController)
         
         trackersNavigationController.tabBarItem = UITabBarItem(
-            title: TabBarItem.trackers.rawValue,
+            title: NSLocalizedString("tabBarItemTrackers", comment: "First text displayed on tab bar stage"),
             image: UIImage(named: "Tracker") ?? UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
         
         statisticViewController.tabBarItem = UITabBarItem(
-            title: TabBarItem.statistics.rawValue,
+            title: NSLocalizedString("tabBarItemStatistics", comment: "Second text displayed on tab bar stage"),
             image: UIImage(named: "Statistics") ?? UIImage(systemName: "hare.fill"),
             selectedImage: nil
         )

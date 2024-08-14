@@ -18,7 +18,8 @@ class PageContentViewController: UIViewController {
     private lazy var switchButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
-        button.setTitle("Вот это технологии!", for: .normal)
+        let buttonText = NSLocalizedString("onboardingButton.text", comment: "Text displayed on onboarding button")
+        button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlack
         button.tintColor = .ypWhite
