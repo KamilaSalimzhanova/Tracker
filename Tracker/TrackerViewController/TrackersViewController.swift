@@ -46,15 +46,12 @@ class TrackersViewController: UIViewController {
         let searchBar: UISearchBar = UISearchBar()
         searchBar.placeholder = NSLocalizedString("searchBarPlaceholder", comment: "Placeholder for a search bar")
         searchBar.sizeToFit()
-        searchBar.isTranslucent = false
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         searchBar.searchTextField.layer.cornerRadius = 18
         searchBar.searchTextField.layer.masksToBounds = true
         searchBar.layer.borderWidth = 1
-        searchBar.layer.borderColor = UIColor.white.cgColor
-        searchBar.backgroundColor = UIColor.ypBackground
-        searchBar.searchTextField.layer.backgroundColor = UIColor.ypSearchBar.cgColor
+        searchBar.layer.borderColor = UIColor.clear.cgColor
         searchBar.delegate = self
         return searchBar
     }()
@@ -316,9 +313,7 @@ class TrackersViewController: UIViewController {
         let datePicker = setUpDatePicker()
         let datePickerItem = UIBarButtonItem(customView: datePicker)
         self.navigationItem.rightBarButtonItem = datePickerItem
-        self.navigationItem.rightBarButtonItem?.customView?.layer.backgroundColor = UIColor.dateColor.cgColor
         self.navigationItem.rightBarButtonItem?.customView?.layer.cornerRadius = 8
-        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.ypBlack
     }
     
     private func setUpDatePicker() -> UIDatePicker {

@@ -12,6 +12,7 @@ final class StatisticsViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "Статистика"
         label.font = .systemFont(ofSize: 34, weight: .bold)
+        label.textColor = .ypWhiteSimple
         return label
     }()
     
@@ -27,6 +28,7 @@ final class StatisticsViewController: UIViewController {
         label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = .black
         label.text = "0"
+        label.textColor = .ypWhiteSimple
         return label
     }()
     
@@ -36,6 +38,7 @@ final class StatisticsViewController: UIViewController {
         label.font = .systemFont(ofSize: 12, weight: .bold)
         label.textColor = .black
         label.text = NSLocalizedString("doneTrackersCount", comment: "")
+        label.textColor = .ypWhiteSimple
         return label
     }()
     
@@ -68,7 +71,7 @@ final class StatisticsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypBackground
         setupAppearance()
     }
     
