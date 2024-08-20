@@ -144,13 +144,12 @@ class TrackersViewController: UIViewController {
     }
     
     private func sorted() {
-        categories.forEach({ category in
-            if category.trackers.isEmpty {
-                print("empty tracker list in category \(category)")
-            } else {
-                visibleTrackers.append(category)
-            }
-        })
+        visibleTrackers = categories.map { category in
+            var sortedCategory = category
+            sortedCategory.trackers.sort { lhs, rhs in return lhs.name < rhs.name }
+            return sortedCategory
+        }
+        visibleTrackers = visibleTrackers.filter { !$0.trackers.isEmpty }
     }
     
     private func addSubviews() {
