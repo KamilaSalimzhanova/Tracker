@@ -45,5 +45,6 @@ class CategoryViewModel {
         categories = trackerCategoryStore.fetchAllCategories().compactMap {
             trackerCategoryStore.decodingCategory(trackerCategoryCoreData: $0)
         }
+        categories = categories.filter { $0.title != "Закрепленные" }
     }
 }

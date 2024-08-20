@@ -62,7 +62,7 @@ final class TrackerCategoryStore: NSObject {
             print("Failed to fetch categories: \(error)")
         }
     }
-
+    
     
     private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
         return fetchAllCategories().first { $0.title == title }
@@ -101,6 +101,19 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
+    func addTrackerToCategory(tracker: Tracker, with titleCategory: String) {
+        let trackers = trackerStore.fetchTrackerCoreData()
+        guard let existingCategory = fetchCategory(title: titleCategory) else { return }
+        var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
+        if let trackerCoreData = trackers.first(where: {$0.trackerId == tracker.trackerId}) {
+            if !existingTrackers.contains(where: { $0.trackerId == tracker.trackerId }) {
+                existingTrackers.append(trackerCoreData)
+            }
+        }
+        existingCategory.trackers = NSSet(array: existingTrackers)
+        saveContext()
+    }
+    
     func decodingCategory(trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
         guard let title = trackerCategoryCoreData.title else { return nil }
         let trackers = (trackerCategoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {
@@ -116,7 +129,8 @@ final class TrackerCategoryStore: NSObject {
                     name: trackerCoreData.name ?? "",
                     color: UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
                     emoji: trackerCoreData.emoji ?? "😃",
-                    schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+                    schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                    isPinned: trackerCoreData.isPinned
                 )
             } ?? []
             return TrackerCategory(title: categoryCoreData.title ?? "", trackers: trackers)
@@ -131,6 +145,7 @@ final class TrackerCategoryStore: NSObject {
         trackerData.emoji = tracker.emoji
         trackerData.color = UIColorMarshalling.shared.hexString(from: tracker.color)
         trackerData.schedule = tracker.schedule.joined(separator: ",")
+        trackerData.isPinned = tracker.isPinned
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == '\(categoryName)'", #keyPath(TrackerCategoryCoreData.title))
         if let category = try? context.fetch(request).first {
@@ -209,7 +224,8 @@ final class TrackerCategoryStore: NSObject {
             name: trackerCoreData.name ?? "",
             color: UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
             emoji: trackerCoreData.emoji ?? "😂",
-            schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+            schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+            isPinned: trackerCoreData.isPinned
         )
         return tracker
     }
@@ -218,6 +234,16 @@ final class TrackerCategoryStore: NSObject {
         let trackerCoreData = fetchedResultController.object(at: indexPath)
         guard let trackerHeader = trackerCoreData.trackerCategory?.title else {return "No category"}
         return trackerHeader
+    }
+    
+    func deleteTrackerFromCategory(tracker: Tracker, with titleCategory: String) {
+        guard let existingCategory = fetchCategory(title: titleCategory) else { return }
+        var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
+        if let index = existingTrackers.firstIndex(where: { $0.trackerId == tracker.trackerId }) {
+            existingTrackers.remove(at: index)
+        }
+        existingCategory.trackers = NSSet(array: existingTrackers)
+        saveContext()
     }
     
     func fetchData() -> [TrackerCategory] {
@@ -234,7 +260,8 @@ final class TrackerCategoryStore: NSObject {
                 name: tracker.name ?? "",
                 color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
                 emoji: tracker.emoji ?? "😂",
-                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"])
+                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                isPinned: tracker.isPinned)
             
             print(tracker)
             
@@ -284,7 +311,8 @@ final class TrackerCategoryStore: NSObject {
                 name: tracker.name ?? "",
                 color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
                 emoji: tracker.emoji ?? "😂",
-                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                isPinned: tracker.isPinned
             )
             
             print(tracker)
@@ -348,6 +376,13 @@ final class TrackerCategoryStore: NSObject {
         })
         return uuids
     }
+    
+    func deleteTracker(trackerCoreData: TrackerCoreData) {
+        context.delete(trackerCoreData)
+        saveContext()
+        print("Tracker deleted successfully.")
+    }
+    
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

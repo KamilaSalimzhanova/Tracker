@@ -17,3 +17,7 @@
 "createButton.text" = "Create";
 "cancelButton.text" = "Return";
 "colorSection.text" = "Color";
+"pin" = "Pin";
+"unpin" = "Unpin";
+"edit" = "Edit";
+"delete" = "Delete";

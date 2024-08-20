@@ -17,3 +17,7 @@
 "createButton.text" = "Создать";
 "cancelButton.text" = "Отменить";
 "colorSection.text" = "Цвет";
+"pin" = "Закрепить";
+"unpin" = "Открепить";
+"edit" = "Редактировать";
+"delete" = "Удалить";

@@ -54,11 +54,6 @@ final class CategoryViewController: UIViewController {
     }()
     
     
-    private var categoryTitles: [String] {
-        let trackersViewController = TrackersViewController()
-        return trackersViewController.getCategories()
-    }
-    
     private lazy var categoryTableView: UITableView = {
         let tableView = UITableView()
         tableView.layer.masksToBounds = true

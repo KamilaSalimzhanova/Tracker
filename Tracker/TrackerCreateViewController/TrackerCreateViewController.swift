@@ -17,6 +17,15 @@ final class TrackerCreateViewController: UIViewController {
     var colorSelected: UIColor = .clear
     var selectedEmojiIndex: IndexPath?
     var selectedColorIndex: IndexPath?
+    var isEdit: Bool = false
+    var dayCount = ""
+    
+    var editingText = ""
+    var editingCategory: TrackerCategory?
+    var editingSchedule: [String] = []
+    var editingEmoji: String?
+    var editingColor: UIColor?
+    var editingID: UUID?
     
     private let sectionHeader = ["Emoji", NSLocalizedString("colorSection.text", comment: "Text displayed on a color section header")]
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
@@ -95,10 +104,21 @@ final class TrackerCreateViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        titleLabel.text = NSLocalizedString("trackerCreateViewController.title", comment: "Text displayed as a title on a tracker creation page")
+        titleLabel.text = self.isEdit
+            ? NSLocalizedString("trackerCreateViewController.title", comment: "Text displayed as a title on a tracker creation page")
+            : "Редактирование привычки"
         titleLabel.tintColor = .ypBlack
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
+    }()
+    
+    private lazy var dayLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.text = "1 день"
+        label.tintColor = .ypBlack
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        return label
     }()
     
     private lazy var newTrackerTextFieldView: UIView = {
@@ -202,8 +222,44 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        if isEdit {
+            dayLabel.text = dayCount
+        }
         addSubviews()
         makeConstraints()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        newTrackerNameTextField.text = editingText
+        trackerTitle = editingText
+        trackerSchedule = editingSchedule
+        category = editingCategory
+        if isEdit {
+            guard let editingEmoji = editingEmoji else { return }
+            guard let editingColor = editingColor else { return }
+            if let index = emoji.firstIndex(of: editingEmoji), index < emoji.count {
+                let indexPath = IndexPath(item: index, section: 0)
+                if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
+                    cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 1)
+                    emojiSelected = emoji[indexPath.item]
+                    print(emoji[indexPath.item])
+                    updateCreateButtonState()
+                }
+            }
+            
+            if let index = colors.firstIndex(of: editingColor), index < colors.count {
+                let indexPath = IndexPath(item: index, section: 1)
+                if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
+                    cell.layer.masksToBounds = true
+                    cell.layer.cornerRadius = 8
+                    cell.layer.borderWidth = 3
+                    cell.layer.borderColor = colorsBorder[indexPath.row].cgColor
+                    colorSelected = colors[indexPath.item]
+                    updateCreateButtonState()
+                }
+            }
+        }
         
     }
     
@@ -222,50 +278,101 @@ final class TrackerCreateViewController: UIViewController {
         trackerView.addSubview(categoryAndScheduleTableView)
         trackerView.addSubview(emojiAndColors)
         trackerView.addSubview(buttonStack)
+        if isEdit {
+            trackerView.addSubview(dayLabel)
+        }
     }
     
     private func makeConstraints(){
-        NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            
-            trackerView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            trackerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            trackerView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            trackerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            trackerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
-            
-            titleLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 27),
-            titleLabel.centerXAnchor.constraint(equalTo: trackerView.centerXAnchor),
-            
-            newTrackerTextFieldView.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 87),
-            newTrackerTextFieldView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
-            newTrackerTextFieldView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
-            newTrackerTextFieldView.heightAnchor.constraint(equalToConstant: 75),
-            
-            newTrackerNameTextField.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 87),
-            newTrackerNameTextField.leadingAnchor.constraint(equalTo: newTrackerTextFieldView.leadingAnchor, constant: 16),
-            newTrackerNameTextField.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
-            newTrackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
-            
-            categoryAndScheduleTableView.topAnchor.constraint(equalTo: newTrackerNameTextField.bottomAnchor, constant: 24),
-            categoryAndScheduleTableView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
-            categoryAndScheduleTableView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
-            categoryAndScheduleTableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * categoryAndSchedule.count - 1)),
-            
-            emojiAndColors.topAnchor.constraint(equalTo: categoryAndScheduleTableView.bottomAnchor, constant: 8),
-            emojiAndColors.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
-            emojiAndColors.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
-            emojiAndColors.heightAnchor.constraint(equalToConstant: CGFloat(collectionViewHeight)),
-            
-            buttonStack.topAnchor.constraint(equalTo: emojiAndColors.bottomAnchor),
-            buttonStack.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
-            buttonStack.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
-            buttonStack.heightAnchor.constraint(equalToConstant: 60),
-            trackerView.bottomAnchor.constraint(equalTo: buttonStack.bottomAnchor)
-        ])
+        if isEdit {
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                
+                trackerView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                trackerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                trackerView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                trackerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                trackerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 27),
+                titleLabel.centerXAnchor.constraint(equalTo: trackerView.centerXAnchor),
+                
+                dayLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 87),
+                dayLabel.centerXAnchor.constraint(equalTo: trackerView.centerXAnchor),
+                dayLabel.heightAnchor.constraint(equalToConstant: 38),
+                
+                newTrackerTextFieldView.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 165),
+                newTrackerTextFieldView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                newTrackerTextFieldView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                newTrackerTextFieldView.heightAnchor.constraint(equalToConstant: 75),
+                
+                newTrackerNameTextField.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 165),
+                newTrackerNameTextField.leadingAnchor.constraint(equalTo: newTrackerTextFieldView.leadingAnchor, constant: 16),
+                newTrackerNameTextField.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                newTrackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
+                
+                categoryAndScheduleTableView.topAnchor.constraint(equalTo: newTrackerNameTextField.bottomAnchor, constant: 24),
+                categoryAndScheduleTableView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                categoryAndScheduleTableView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                categoryAndScheduleTableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * categoryAndSchedule.count - 1)),
+                
+                emojiAndColors.topAnchor.constraint(equalTo: categoryAndScheduleTableView.bottomAnchor, constant: 8),
+                emojiAndColors.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                emojiAndColors.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                emojiAndColors.heightAnchor.constraint(equalToConstant: CGFloat(collectionViewHeight)),
+                
+                buttonStack.topAnchor.constraint(equalTo: emojiAndColors.bottomAnchor),
+                buttonStack.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                buttonStack.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                buttonStack.heightAnchor.constraint(equalToConstant: 60),
+                trackerView.bottomAnchor.constraint(equalTo: buttonStack.bottomAnchor)
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                scrollView.topAnchor.constraint(equalTo: view.topAnchor),
+                scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+                scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+                scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+                
+                trackerView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+                trackerView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+                trackerView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+                trackerView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+                trackerView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+                
+                titleLabel.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 27),
+                titleLabel.centerXAnchor.constraint(equalTo: trackerView.centerXAnchor),
+                
+                newTrackerTextFieldView.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 87),
+                newTrackerTextFieldView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                newTrackerTextFieldView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                newTrackerTextFieldView.heightAnchor.constraint(equalToConstant: 75),
+                
+                newTrackerNameTextField.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 87),
+                newTrackerNameTextField.leadingAnchor.constraint(equalTo: newTrackerTextFieldView.leadingAnchor, constant: 16),
+                newTrackerNameTextField.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                newTrackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
+                
+                categoryAndScheduleTableView.topAnchor.constraint(equalTo: newTrackerNameTextField.bottomAnchor, constant: 24),
+                categoryAndScheduleTableView.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                categoryAndScheduleTableView.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                categoryAndScheduleTableView.heightAnchor.constraint(equalToConstant: CGFloat(75 * categoryAndSchedule.count - 1)),
+                
+                emojiAndColors.topAnchor.constraint(equalTo: categoryAndScheduleTableView.bottomAnchor, constant: 8),
+                emojiAndColors.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                emojiAndColors.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                emojiAndColors.heightAnchor.constraint(equalToConstant: CGFloat(collectionViewHeight)),
+                
+                buttonStack.topAnchor.constraint(equalTo: emojiAndColors.bottomAnchor),
+                buttonStack.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 16),
+                buttonStack.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -16),
+                buttonStack.heightAnchor.constraint(equalToConstant: 60),
+                trackerView.bottomAnchor.constraint(equalTo: buttonStack.bottomAnchor)
+            ])
+        }
     }
     
     func updateCreateButtonState() {
@@ -296,7 +403,7 @@ final class TrackerCreateViewController: UIViewController {
         }
         let schedule = trackerSchedule
         guard let category = self.category else { return }
-        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule)
+        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule, isPinned: false)
         
         delegate?.createTracker(category: category.title, tracker: tracker)
         self.dismiss(animated: false)
