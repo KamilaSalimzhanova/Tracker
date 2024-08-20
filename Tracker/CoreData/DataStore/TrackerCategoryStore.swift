@@ -63,6 +63,24 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
+    func deleteTrackerAndCategory(withID id: UUID, inCategory categoryName: String, tracker: Tracker){
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "trackerId == %@ AND trackerCategory.title == %@", id as CVarArg, categoryName)
+        do {
+            let result = try context.fetch(fetchRequest)
+            guard let trackerCoreData = result.first else {
+                print("Tracker not found")
+                return
+            }
+            deleteTracker(trackerCoreData: trackerCoreData)
+            getCategories()
+            saveContext()
+        } catch {
+            print("Failed to fetch tracker: \(error)")
+            return 
+        }
+    }
+
     
     private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
         return fetchAllCategories().first { $0.title == title }
@@ -73,10 +91,12 @@ final class TrackerCategoryStore: NSObject {
         if category == nil {
             category = createCategory(with: titleCategory)
         }
+
         guard let trackerCoreData = trackerStore.addNewTracker(tracker) else { return }
         category?.addToTrackers(trackerCoreData)
         saveContext()
     }
+    
     
     private func createCategory(with title: String) -> TrackerCategoryCoreData {
         guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {

@@ -5,8 +5,10 @@ protocol TrackerCollectionViewCellProtocol: AnyObject {
     func uncompleteTracker(id: UUID, at indexPath: IndexPath)
     func handlePinAction(indexPath: IndexPath)
     func handleUnpinAction(indexPath: IndexPath)
-    
+    func handleEditAction(indexPath: IndexPath)
+    func handleDeleteAction(indexPath: IndexPath)
 }
+
 final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuInteractionDelegate {
     
     var trackerId: UUID?
@@ -60,7 +62,10 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     
     private let dayCountLabel: UILabel = {
         let dayCountLabel = UILabel()
-        dayCountLabel.text = "1 день"
+        dayCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            0
+        )
         dayCountLabel.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         dayCountLabel.textColor = .ypBlack
         return dayCountLabel
@@ -204,6 +209,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
                 }
                 self.delegate?.completeTracker(id: trackerId, at: indexPath)
                 self.completedDays += 1
+                print(self.completedDays)
                 self.trackerComplete()
             }
         }
@@ -215,8 +221,15 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         self.dayCountButton.setImage(buttonImage, for: .normal)
         self.dayCountLabel.text = String.localizedStringWithFormat(
             NSLocalizedString("numberOfDays", comment: ""),
-            completedDays
+            self.completedDays
         )
+    }
+    func getDayCount() -> String {
+        self.dayCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            self.completedDays
+        )
+        return dayCountLabel.text ?? ""
     }
     func trackerCompleteUndo() {
         let buttonImage = UIImage(named: "Plus button")
@@ -239,11 +252,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
             }
             
             let edit = UIAction(title: NSLocalizedString("edit", comment: ""), image: UIImage(systemName: "pencil")) { _ in
-                self.handleEditAction()
+                self.delegate?.handleEditAction(indexPath: indexPath)
             }
             
             let delete = UIAction(title: NSLocalizedString("delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
-                self.handleDeleteAction()
+                self.delegate?.handleDeleteAction(indexPath: indexPath)
             }
             
             let actions: [UIAction]
@@ -257,21 +270,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         }
     }
     
-    private func handlePinAction() {
-        
-    }
-    
-    private func handleUnpinAction() {
-        // Handle unpin action
-    }
-    
-    private func handleEditAction() {
-        // Handle edit action
-    }
-    
-    private func handleDeleteAction() {
-        // Handle delete action
-    }
     
 }
 

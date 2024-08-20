@@ -2,6 +2,7 @@ import UIKit
 
 protocol HabbitCreateViewControllerProtocol: AnyObject {
     func createTracker(category: String, tracker: Tracker)
+    func createTracker(prevCategory: String, newCategory: String, tracker: Tracker)
 }
 
 final class TrackerCreateViewController: UIViewController {
@@ -10,23 +11,19 @@ final class TrackerCreateViewController: UIViewController {
 
     let regular: Bool
     var category: TrackerCategory?
+    var previousCategory: TrackerCategory?
     var trackerSchedule: [String] = []
     var trackerTitle = ""
     var scheduleTitle: String?
-    var emojiSelected: String = ""
-    var colorSelected: UIColor = .clear
+    var emojiSelected: String?
+    var colorSelected: UIColor?
     var selectedEmojiIndex: IndexPath?
     var selectedColorIndex: IndexPath?
-    var isEdit: Bool = false
     var dayCount = ""
-    
-    var editingText = ""
-    var editingCategory: TrackerCategory?
-    var editingSchedule: [String] = []
-    var editingEmoji: String?
-    var editingColor: UIColor?
-    var editingID: UUID?
-    
+    var isEdit: Bool = false
+    var trackerId: UUID?
+    var isPinned: Bool = false
+
     private let sectionHeader = ["Emoji", NSLocalizedString("colorSection.text", comment: "Text displayed on a color section header")]
     private let emoji: [String] = ["🙂", "😻", "🌺", "🐶", "❤️", "😱", "😇", "😡", "🥶", "🤔", "🙌", "🍔", "🥦", "🏓", "🥇", "🎸", "🏝", "😪"]
     
@@ -105,8 +102,8 @@ final class TrackerCreateViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = self.isEdit
-            ? NSLocalizedString("trackerCreateViewController.title", comment: "Text displayed as a title on a tracker creation page")
-            : "Редактирование привычки"
+            ? "Редактирование привычки"
+            : NSLocalizedString("trackerCreateViewController.title", comment: "Text displayed as a title on a tracker creation page")
         titleLabel.tintColor = .ypBlack
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
@@ -222,47 +219,44 @@ final class TrackerCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        if isEdit {
-            dayLabel.text = dayCount
-        }
         addSubviews()
         makeConstraints()
+        if isEdit {
+            newTrackerNameTextField.text = trackerTitle
+            print(dayCount)
+            dayLabel.text = dayCount
+            categoryAndScheduleTableView.reloadData()
+            updateCreateButtonState()
+        }
     }
-    
+
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        newTrackerNameTextField.text = editingText
-        trackerTitle = editingText
-        trackerSchedule = editingSchedule
-        category = editingCategory
-        if isEdit {
-            guard let editingEmoji = editingEmoji else { return }
-            guard let editingColor = editingColor else { return }
-            if let index = emoji.firstIndex(of: editingEmoji), index < emoji.count {
-                let indexPath = IndexPath(item: index, section: 0)
-                if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
-                    cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 1)
-                    emojiSelected = emoji[indexPath.item]
-                    print(emoji[indexPath.item])
-                    updateCreateButtonState()
-                }
-            }
-            
-            if let index = colors.firstIndex(of: editingColor), index < colors.count {
-                let indexPath = IndexPath(item: index, section: 1)
-                if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
-                    cell.layer.masksToBounds = true
-                    cell.layer.cornerRadius = 8
-                    cell.layer.borderWidth = 3
-                    cell.layer.borderColor = colorsBorder[indexPath.row].cgColor
-                    colorSelected = colors[indexPath.item]
-                    updateCreateButtonState()
-                }
+        guard let selectedEmoji = self.emojiSelected else { return }
+        if let indexOfSelectedEmoji = emoji.firstIndex(of: selectedEmoji), indexOfSelectedEmoji < emoji.count {
+            let indexPath = IndexPath(item: indexOfSelectedEmoji, section: 0)
+            selectedEmojiIndex = indexPath
+            if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
+                cell.layer.cornerRadius = 16
+                cell.clipsToBounds = true
+                cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 1)
             }
         }
-        
+        guard let selectedColor = self.colorSelected else { return }
+        if let indexOfSelectedColor = colors.firstIndex(of: selectedColor), indexOfSelectedColor < colors.count {
+            let indexPath = IndexPath(item: indexOfSelectedColor, section: 1)
+            self.selectedColorIndex = indexPath
+            if let cell = emojiAndColors.cellForItem(at: indexPath) as? EmojiAndColorCollectionViewCell {
+                cell.layer.cornerRadius = 8
+                cell.layer.borderWidth = 3
+                cell.layer.borderColor = colorsBorder[indexPath.row].cgColor
+                
+            }
+        }
+        updateCreateButtonState()
     }
-    
+                
+
     func reloadTable(){
         categoryAndScheduleTableView.reloadData()
     }
@@ -382,6 +376,10 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     private func checkFormValidity() -> Bool {
+        guard let emojiSelected, let colorSelected else {
+            print("Color or emoji empty")
+            return false
+        }
         if regular {
             return (!trackerTitle.isEmpty && !trackerSchedule.isEmpty && !emojiSelected.isEmpty && colorSelected != .clear && category != nil)
         } else {
@@ -390,6 +388,19 @@ final class TrackerCreateViewController: UIViewController {
     }
     
     @objc private func createTracker(){
+        if isEdit {
+            guard let previousCategory = self.previousCategory else {
+                print("No category")
+                return
+            }
+            let schedule = trackerSchedule
+            guard let category = self.category,
+                let trackerId = self.trackerId
+            else { return }
+            let tracker = Tracker(trackerId: trackerId, name: trackerTitle, color: colorSelected ?? UIColor.white, emoji: emojiSelected ?? "😃", schedule: schedule, isPinned: false)
+        
+            self.delegate?.createTracker(prevCategory: previousCategory.title, newCategory: category.title, tracker: tracker)
+        }
         if !regular {
             trackerSchedule = [
                 Weekdays.Monday.rawValue,
@@ -403,9 +414,10 @@ final class TrackerCreateViewController: UIViewController {
         }
         let schedule = trackerSchedule
         guard let category = self.category else { return }
-        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected, emoji: emojiSelected, schedule: schedule, isPinned: false)
+        let tracker = Tracker(trackerId: UUID(), name: trackerTitle, color: colorSelected ?? UIColor.white, emoji: emojiSelected ?? "😃", schedule: schedule, isPinned: false)
         
-        delegate?.createTracker(category: category.title, tracker: tracker)
+        print("here")
+        self.delegate?.createTracker(category: category.title, tracker: tracker)
         self.dismiss(animated: false)
         trackerTypeViewController.dismiss(animated: true)
         trackerSchedule = []
@@ -486,7 +498,7 @@ extension TrackerCreateViewController: UICollectionViewDataSource {
         guard let cell = cell else { return UICollectionViewCell() }
         let section = indexPath.section
         let emojiIsHidden = section == 0
-        cell.configCell(isHidden: emojiIsHidden, text: emoji[indexPath.row], color: colors[indexPath.row])
+        cell.configCell(isHidden: emojiIsHidden, text: emoji[indexPath.row], color: colors[indexPath.row] )
         return cell
     }
     

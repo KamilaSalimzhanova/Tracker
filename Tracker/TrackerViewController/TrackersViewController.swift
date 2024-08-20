@@ -408,6 +408,37 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         updateTrackers(text: nil)
         collectionView.reloadData()
     }
+    
+    func handleEditAction(indexPath: IndexPath){
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionViewCell
+        guard let cell = cell else { return }
+        let tracker = visibleTrackers[indexPath.section].trackers[indexPath.row]
+        let habitViewController = TrackerCreateViewController(regular: true, trackerTypeViewController: TrackerTypeViewController())
+        habitViewController.isEdit = true
+        habitViewController.delegate = self
+        habitViewController.dayCount = cell.getDayCount()
+        print("Day count \(habitViewController.dayCount)")
+        habitViewController.trackerId = tracker.trackerId
+        print("TRAKCER ID \(tracker.trackerId)")
+        habitViewController.trackerTitle = tracker.name
+        habitViewController.colorSelected = tracker.color
+        habitViewController.emojiSelected = tracker.emoji
+        habitViewController.trackerSchedule = tracker.schedule
+        habitViewController.scheduleTitle = tracker.schedule.joined(separator: ", ")
+        habitViewController.isPinned = tracker.isPinned
+        habitViewController.category = visibleTrackers[indexPath.section]
+        habitViewController.previousCategory = visibleTrackers[indexPath.section]
+        let categoryTitle = visibleTrackers[indexPath.section].title
+        let allCategories: [TrackerCategory] = []
+        if let category = allCategories.first(where: { $0.title == categoryTitle }) {
+              habitViewController.category = category
+        }
+        habitViewController.modalPresentationStyle = .popover
+        self.present(habitViewController, animated: true)
+        collectionView.reloadData()
+        updateTrackers(text: nil)
+    }
+    func handleDeleteAction(indexPath: IndexPath){}
 }
 extension TrackersViewController: HabbitCreateViewControllerProtocol {
     func createTracker(category: String, tracker: Tracker) {
@@ -417,6 +448,14 @@ extension TrackersViewController: HabbitCreateViewControllerProtocol {
         collectionView.reloadData()
         updateTrackers(text: nil)
         print("Visible trackers after creation \(visibleTrackers)")
+    }
+    func createTracker(prevCategory: String, newCategory: String, tracker: Tracker){
+        trackerCategoryStore.deleteTrackerAndCategory(withID: tracker.trackerId, inCategory: prevCategory, tracker: tracker)
+        categories = trackerCategoryStore.getCategories()
+        visibleTrackers = categories
+        updateTrackers(text: nil)
+        print("Visible trackers after creation \(visibleTrackers)")
+        print("New tracker id: \(tracker.trackerId)")
     }
 }
 
