@@ -36,6 +36,7 @@ class TrackersViewController: UIViewController {
         collectionView.register(TrackerSupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         collectionView.dataSource = self
         collectionView.delegate = self
+        collectionView.backgroundColor = UIColor.ypBackground
         return collectionView
     }()
     
@@ -50,6 +51,8 @@ class TrackersViewController: UIViewController {
         searchBar.searchTextField.layer.masksToBounds = true
         searchBar.layer.borderWidth = 1
         searchBar.layer.borderColor = UIColor.white.cgColor
+        searchBar.backgroundColor = UIColor.ypBackground
+        searchBar.searchTextField.layer.backgroundColor = UIColor.ypSearchBar.cgColor
         searchBar.delegate = self
         return searchBar
     }()
@@ -105,7 +108,7 @@ class TrackersViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.text = NSLocalizedString("trackersViewController.title", comment: "Main title")
         titleLabel.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        titleLabel.textColor = .black
+        titleLabel.textColor = UIColor.titleColor
         return titleLabel
     }()
     
@@ -116,7 +119,7 @@ class TrackersViewController: UIViewController {
         let filterButtonText = NSLocalizedString("filterButtonText", comment: "Text displayed on filter button")
         filterButton.setTitle(filterButtonText, for: .normal)
         filterButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .regular)
-        filterButton.titleLabel?.tintColor = .ypWhite
+        filterButton.titleLabel?.tintColor = UIColor.white
         filterButton.addTarget(
             self,
             action: #selector(filterButtonTapped),
@@ -127,7 +130,7 @@ class TrackersViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.view.backgroundColor = .white
+        self.view.backgroundColor = UIColor.ypBackground
         self.currentDate = Date()
         categories = trackerCategoryStore.getCategories()
         print(visibleTrackers)
@@ -182,6 +185,7 @@ class TrackersViewController: UIViewController {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
             
             searchBar.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 7),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
@@ -295,11 +299,13 @@ class TrackersViewController: UIViewController {
             target: self,
             action: #selector(addTarget)
         )
-        self.navigationItem.leftBarButtonItem?.tintColor = .ypBlack
+        self.navigationItem.leftBarButtonItem?.tintColor = UIColor.titleColor
         let datePicker = setUpDatePicker()
         let datePickerItem = UIBarButtonItem(customView: datePicker)
         self.navigationItem.rightBarButtonItem = datePickerItem
+        self.navigationItem.rightBarButtonItem?.customView?.layer.backgroundColor = UIColor.dateColor.cgColor
         self.navigationItem.rightBarButtonItem?.customView?.layer.cornerRadius = 8
+        self.navigationItem.rightBarButtonItem?.tintColor = UIColor.ypBlack
     }
     
     private func setUpDatePicker() -> UIDatePicker {

@@ -13,7 +13,7 @@ class FilterViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "Фильтры"
-        titleLabel.tintColor = .ypBlack
+        titleLabel.tintColor = UIColor.white
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
     }()

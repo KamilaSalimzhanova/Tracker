@@ -186,7 +186,7 @@
 				8E8541042C5FBD6F00C4F4CF /* EmojiAndColorViewSetUp */,
 				8E8540F12C5ECA4400C4F4CF /* TrackerTypeViewController */,
 				8E8540E82C5EB81C00C4F4CF /* TrackerViewController */,
-				8E8540CF2C5E62FA00C4F4CF /* TabBarVIewController.swift */,
+				8ED4051D2C75235F00C8C3B4 /* TabBarViewController */,
 				8E8540E12C5EB2A200C4F4CF /* Models */,
 				8E8540D12C5E648600C4F4CF /* StatisticViewController.swift */,
 				8E59AA012C3D530600946A86 /* AppDelegate.swift */,
@@ -323,6 +323,14 @@
 				8EC6BCC22C6810B800DCD61A /* DataStore.swift */,
 			);
 			path = DataStore;
+			sourceTree = "<group>";
+		};
+		8ED4051D2C75235F00C8C3B4 /* TabBarViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8E8540CF2C5E62FA00C4F4CF /* TabBarVIewController.swift */,
+			);
+			path = TabBarViewController;
 			sourceTree = "<group>";
 		};
 		8EE18A632C6925F3003830E9 /* Onboarding */ = {

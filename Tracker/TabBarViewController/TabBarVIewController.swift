@@ -11,10 +11,10 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.tabBar.backgroundColor = .white
+        self.tabBar.backgroundColor = .ypBackground
         self.setupViewControllers()
         let separator = UIView()
-        separator.backgroundColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
+        separator.backgroundColor = UIColor.ypSeparator
         view.addSubview(separator)
         separator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([

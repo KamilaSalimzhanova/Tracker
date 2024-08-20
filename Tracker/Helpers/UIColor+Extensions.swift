@@ -1,6 +1,12 @@
 import UIKit
 
 extension UIColor {
+    static var ypSearchBar: UIColor { UIColor(named: "YP search bar") ?? UIColor.white}
+    static var ypWhiteSimple: UIColor { UIColor(named: "YP white simple") ?? UIColor.white}
+    static var ypSeparator: UIColor { UIColor(named: "YP separator") ?? UIColor.white}
+    static var ypBackground: UIColor { UIColor(named: "YP Background") ?? UIColor.white}
+    static var dateColor: UIColor { UIColor(named: "YP date") ?? UIColor.white}
+    static var titleColor: UIColor { UIColor(named: "YP White Title") ?? UIColor.white}
     static var ypBlue: UIColor { UIColor(named: "YP Blue") ?? UIColor.blue }
     static var ypGreen: UIColor { UIColor(named: "YP Green") ?? UIColor.green }
     static var ypWhite: UIColor { UIColor(named: "YP White") ?? UIColor.white }
