@@ -276,12 +276,10 @@ class TrackersViewController: UIViewController {
         if visibleTrackers.isEmpty {
             collectionView.isHidden = true
             errorStubView.isHidden = false
-            filterButton.isHidden = true
             stubView.isHidden = true
         } else {
             collectionView.isHidden = false
             errorStubView.isHidden = true
-            filterButton.isHidden = false
             stubView.isHidden = true
         }
     }
@@ -317,9 +315,11 @@ class TrackersViewController: UIViewController {
         return datePicker
     }
     private func applyFilter(_ filter: FilterOption) {
+        var isFilterActive = false
         switch filter {
         case .allTrackers:
             sorted()
+            print(visibleTrackers)
             collectionView.reloadData()
         case .todayTrackers:
             self.currentDate = Date()
@@ -329,7 +329,9 @@ class TrackersViewController: UIViewController {
         case .incomplete:
             filterUncompletedTrackers()
         }
+        collectionView.isHidden = visibleTrackers.isEmpty
         errorStubView.isHidden = !visibleTrackers.isEmpty
+        collectionView.reloadData()
     }
     
     private func filterCompletedTrackers(isCompleted: Bool) {
