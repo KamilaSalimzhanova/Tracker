@@ -115,6 +115,9 @@ class TrackersViewController: UIViewController {
         makeConstraints()
         setupNavigationBar()
         updateViewController()
+        let buttonHeight: CGFloat = 50
+        collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: buttonHeight+5, right: 0)
+
     }
     
     
