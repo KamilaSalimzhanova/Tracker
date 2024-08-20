@@ -59,7 +59,7 @@ final class CategoryViewController: UIViewController {
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        tableView.backgroundColor = .ypWhite
+        tableView.backgroundColor = .ypBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.reuseIdentifier)
@@ -74,7 +74,7 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypBackground
         let trackers = TrackersViewController()
         viewModel = CategoryViewModel(trackerCategoryStore: TrackerCategoryStore(delegate: trackers, currentDate: trackers.currentDate, searchText: ""))
         addSubviews()

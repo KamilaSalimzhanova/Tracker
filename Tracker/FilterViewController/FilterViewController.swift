@@ -13,7 +13,7 @@ class FilterViewController: UIViewController {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "Фильтры"
-        titleLabel.tintColor = UIColor.white
+        titleLabel.tintColor = UIColor.ypWhiteSimple
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
     }()
@@ -28,7 +28,7 @@ class FilterViewController: UIViewController {
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        tableView.backgroundColor = .ypWhite
+        tableView.backgroundColor = .ypBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(FilterViewCell.self, forCellReuseIdentifier: FilterViewCell.reuseIdentifier)
@@ -43,7 +43,7 @@ class FilterViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypBackground
         setupTableView()
     }
     

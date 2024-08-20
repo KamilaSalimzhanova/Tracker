@@ -205,7 +205,7 @@ final class TrackerCreateViewController: UIViewController {
         let layout = UICollectionViewFlowLayout()
         let emojiAndColors = UICollectionView(frame: .zero, collectionViewLayout: layout)
         emojiAndColors.translatesAutoresizingMaskIntoConstraints = false
-        emojiAndColors.backgroundColor = .ypWhite
+        emojiAndColors.backgroundColor = .ypBackground
         emojiAndColors.register(EmojiAndColorCollectionViewCell.self, forCellWithReuseIdentifier: "emojiAndColors")
         emojiAndColors.register(EmojiAndColorsSupplementaryViewCell.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         emojiAndColors.dataSource = self
@@ -218,7 +218,7 @@ final class TrackerCreateViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypBackground
         addSubviews()
         makeConstraints()
         if isEdit {

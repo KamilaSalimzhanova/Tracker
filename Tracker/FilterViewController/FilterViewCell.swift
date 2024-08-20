@@ -5,7 +5,7 @@ final class FilterViewCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         textLabel?.font = .systemFont(ofSize: 17, weight: .medium)
-        textLabel?.textColor = .ypBlack
+        textLabel?.textColor = .titleColor
         backgroundColor = .rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
         selectionStyle = .none
     }

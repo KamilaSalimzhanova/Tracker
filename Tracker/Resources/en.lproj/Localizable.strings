@@ -24,3 +24,4 @@
 "delete" = "Delete";
 "actionSheetTitle" = "Are you sure you want to delete the tracker?";
 "doneTrackersCount" = "Completed trackers";
+"statistics" = "Statistics";

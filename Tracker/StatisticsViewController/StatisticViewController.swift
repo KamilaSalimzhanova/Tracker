@@ -10,7 +10,7 @@ final class StatisticsViewController: UIViewController {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Статистика"
+        label.text = NSLocalizedString("statistics", comment: "Text displayed on statistics view controller title")
         label.font = .systemFont(ofSize: 34, weight: .bold)
         label.textColor = .ypWhiteSimple
         return label
