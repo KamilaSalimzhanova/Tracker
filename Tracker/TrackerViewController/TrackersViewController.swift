@@ -188,7 +188,6 @@ class TrackersViewController: UIViewController {
     }
     
     private func updateTrackers(text: String?) {
-        var searchedCategories: [TrackerCategory] = []
         guard let currentDate = currentDate else {
             print("No current date selected")
             return
@@ -198,21 +197,25 @@ class TrackersViewController: UIViewController {
         let searchText = (text ?? "").lowercased()
         trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
         categories = trackerCategoryStore.getCategories()
+        var searchedCategories: [TrackerCategory] = []
         for category in categories {
             var searchedTrackers: [Tracker] = []
             
             for tracker in category.trackers {
                 if tracker.schedule.contains(weekday) {
+                    print("Tracker is \(tracker)")
                     searchedTrackers.append(tracker)
                 }
             }
             if !searchedTrackers.isEmpty {
-                searchedCategories.append(TrackerCategory(title: category.title, trackers: category.trackers))
+                searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
             }
+            print("searcu categories are \(searchedCategories)")
             
         }
         print("Categories for this day \(searchedCategories)")
         visibleTrackers = searchedCategories
+        print(visibleTrackers)
         collectionView.reloadData()
         updateViewController()
     }
