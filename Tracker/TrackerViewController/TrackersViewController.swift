@@ -16,6 +16,8 @@ class TrackersViewController: UIViewController {
     let horizontalSpacing: Int = 9
     let verticalSpacing: Int = 0
     
+    private let analyticsService = AnalyticsService()
+    
     private let dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .black
@@ -145,6 +147,17 @@ class TrackersViewController: UIViewController {
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: buttonHeight+5, right: 0)
 
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      analyticsService.report(event: "open", params: ["screen": "Main"])
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+      super.viewDidDisappear(true)
+      analyticsService.report(event: "close", params: ["screen": "Main"])
+    }
+
     
     private func sorted() {
         visibleTrackers = categories.map { category in
@@ -399,7 +412,8 @@ class TrackersViewController: UIViewController {
 
     
     @objc private func addTarget() {
-        print("Add target")
+        print("PlusButtonTapped")
+        analyticsService.report(event: "click", params: ["screen": "Main", "item": "add_track"])
         let viewController = TrackerTypeViewController()
         viewController.trackerViewController = self
         viewController.modalPresentationStyle = .popover
@@ -412,6 +426,8 @@ class TrackersViewController: UIViewController {
     }
     
     @objc private func filterButtonTapped() {
+        print("filterButtonTapped")
+        analyticsService.report(event: "click", params: ["screen": "Main", "item": "filter"])
         let filterVC = FilterViewController()
         filterVC.selectedFilter = currentFilter
         filterVC.filterSelectionHandler = { [weak self] selectedFilter in
@@ -567,6 +583,8 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
     }
     
     func handleEditAction(indexPath: IndexPath){
+        print("Edit in context menu was tapped")
+        analyticsService.report(event: "click", params: ["screen": "Main", "item": "edit"])
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionViewCell
         guard let cell = cell else { return }
         let tracker = visibleTrackers[indexPath.section].trackers[indexPath.row]
@@ -596,6 +614,8 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         updateTrackers(text: nil)
     }
     func handleDeleteAction(indexPath: IndexPath){
+        print("Delete in context menu was tapped")
+        analyticsService.report(event: "click", params: ["screen": "Main", "item": "delete"])
         let actionSheet = UIAlertController(title: NSLocalizedString("actionSheetTitle", comment: ""), message: nil, preferredStyle: .actionSheet)
         let deleteAction = UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
             let trackerForDelete = self.visibleTrackers[indexPath.section].trackers[indexPath.row]

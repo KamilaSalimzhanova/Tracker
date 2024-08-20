@@ -19,6 +19,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     var isCompletedToday: Bool = false
     var count = 0
     
+    private let analyticsService = AnalyticsService()
+    
     weak var delegate: TrackerCollectionViewCellProtocol?
     var trackerStore: TrackerStore?
     
@@ -203,6 +205,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     }
     
     @objc private func buttonTapped(){
+        analyticsService.report(event: "click", params: ["screen": "Main", "item": "track"])
         if isCompletedToday {
             UIView.animate(withDuration: 0.2, delay: 0) {
                 guard let trackerId = self.trackerId, let indexPath = self.indexPath else {
