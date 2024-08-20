@@ -589,7 +589,6 @@ extension TrackerCreateViewController: UICollectionViewDelegateFlowLayout {
                 self.colorSelected = self.colors[indexPath.row]
                 self.selectedColorIndex = indexPath
             }
-            print(self.emojiSelected, self.colorSelected)
             self.updateCreateButtonState()
         }
     }

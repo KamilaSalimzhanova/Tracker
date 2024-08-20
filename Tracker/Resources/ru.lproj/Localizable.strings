@@ -5,6 +5,7 @@
 "tabBarItemStatistics" = "Статистика";
 "searchBarPlaceholder" = "Поиск";
 "emptyTrackerStub.text" = "Что будем отслеживать?";
+"errorStubView.text" = "Ничего не найдено";
 "trackersViewController.title" = "Трекеры";
 "filterButtonText" = "Фильтры";
 "trackerSelectTypeTextHabbit" = "Привычка";

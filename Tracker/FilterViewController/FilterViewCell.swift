@@ -1,10 +1,10 @@
 import UIKit
 
-final class CategoryTableViewCell: UITableViewCell {
-    static let reuseIdentifier = "CategoryTableViewCell"
+final class FilterViewCell: UITableViewCell {
+    static let reuseIdentifier = "FilterCell"
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        textLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        textLabel?.font = .systemFont(ofSize: 17, weight: .medium)
         textLabel?.textColor = .ypBlack
         backgroundColor = .rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
         selectionStyle = .none
@@ -15,7 +15,7 @@ final class CategoryTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(category: TrackerCategory) {
-        textLabel?.text = category.title
+    func configure(filterTitle: String) {
+        textLabel?.text = filterTitle
     }
 }

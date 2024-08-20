@@ -174,7 +174,9 @@ extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.reuseIdentifier, for: indexPath) as! CategoryTableViewCell
         let category = viewModel.category(at: indexPath.row)
-        cell.configure(category: category, isSelected: false)
+        let isSelected = viewModel.isCategorySelected(at: indexPath.row)
+        cell.configure(category: category)
+        cell.accessoryType = isSelected ? .checkmark : .none
         print(cell)
         return cell
     }

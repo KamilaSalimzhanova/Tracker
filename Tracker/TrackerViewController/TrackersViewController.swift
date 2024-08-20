@@ -1,11 +1,10 @@
 import UIKit
 
 class TrackersViewController: UIViewController {
-    
+    private var currentFilter: FilterOption = .allTrackers
     private var completedTrackersId: Set<UUID> = []
     private var complitedTrackers: [TrackerRecord] = []
     private var trackersForCurrentDate: [TrackerCategory] = []
-    
     private var categories: [TrackerCategory] = []
     private var visibleTrackers: [TrackerCategory] = []
     private var searchedText: String = ""
@@ -25,12 +24,7 @@ class TrackersViewController: UIViewController {
         return label
     }()
     
-    var currentDate: Date? {
-        didSet {
-            updateTrackers(text: nil)
-        }
-    }
-    
+    var currentDate: Date?
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -79,6 +73,30 @@ class TrackersViewController: UIViewController {
         return stubView
     }()
     
+    private lazy var errorStubImageView: UIImageView = {
+        var emptyList = UIImageView()
+        let emptyListStub = UIImage(named: "Error") ?? UIImage()
+        emptyList.image = emptyListStub
+        emptyList.translatesAutoresizingMaskIntoConstraints = false
+        return emptyList
+    }()
+    
+    private lazy var errorStubText: UILabel = {
+        let emptyListText = UILabel()
+        emptyListText.text = NSLocalizedString("errorStubView.text", comment: "Text displayed on error stub when search or filter result is empty")
+        emptyListText.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        emptyListText.tintColor = .black
+        emptyListText.translatesAutoresizingMaskIntoConstraints = false
+        return emptyListText
+    }()
+    
+    private lazy var errorStubView: UIView = {
+        let stubView = UIView()
+        stubView.sizeToFit()
+        return stubView
+    }()
+    
+    
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.text = NSLocalizedString("trackersViewController.title", comment: "Main title")
@@ -109,9 +127,10 @@ class TrackersViewController: UIViewController {
         self.currentDate = Date()
         categories = trackerCategoryStore.getCategories()
         print(visibleTrackers)
-        //sorted()
+        sorted()
         addSubviews()
         setStubView()
+        setErrorStubView()
         makeConstraints()
         setupNavigationBar()
         updateViewController()
@@ -119,7 +138,6 @@ class TrackersViewController: UIViewController {
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: buttonHeight+5, right: 0)
 
     }
-    
     
     private func sorted() {
         categories.forEach({ category in
@@ -137,6 +155,7 @@ class TrackersViewController: UIViewController {
             titleLabel,
             searchBar,
             stubView,
+            errorStubView,
             collectionView,
             filterButton
         ].forEach {
@@ -149,6 +168,12 @@ class TrackersViewController: UIViewController {
         stubView.addSubview(emptyListImageView)
         stubView.addSubview(emptyListText)
         makeConstraintsStub()
+    }
+    
+    private func setErrorStubView(){
+        errorStubView.addSubview(errorStubImageView)
+        errorStubView.addSubview(errorStubText)
+        makeConstraintsErrorStub()
     }
     
     private func makeConstraints() {
@@ -165,6 +190,11 @@ class TrackersViewController: UIViewController {
             stubView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             stubView.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
             stubView.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor),
+            
+            errorStubView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            errorStubView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            errorStubView.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
+            errorStubView.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor),
             
             collectionView.topAnchor.constraint(equalTo: searchBar.bottomAnchor),
             collectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
@@ -190,6 +220,18 @@ class TrackersViewController: UIViewController {
         ])
     }
     
+    private func makeConstraintsErrorStub() {
+        NSLayoutConstraint.activate([
+            errorStubImageView.centerXAnchor.constraint(equalTo: errorStubView.centerXAnchor),
+            errorStubImageView.centerYAnchor.constraint(equalTo: errorStubView.centerYAnchor, constant: -25),
+            errorStubImageView.heightAnchor.constraint(equalToConstant: 80),
+            errorStubImageView.widthAnchor.constraint(equalToConstant: 80),
+            
+            errorStubText.centerXAnchor.constraint(equalTo: errorStubView.centerXAnchor),
+            errorStubText.topAnchor.constraint(equalTo: errorStubImageView.bottomAnchor, constant: 8)
+        ])
+    }
+    
     private func updateTrackers(text: String?) {
         guard let currentDate = currentDate else {
             print("No current date selected")
@@ -200,16 +242,22 @@ class TrackersViewController: UIViewController {
         let searchText = (text ?? "").lowercased()
         trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
         categories = trackerCategoryStore.getCategories()
+        if categories.isEmpty {
+            stubView.isHidden = false
+        } else {
+            stubView.isHidden = true
+        }
         var searchedCategories: [TrackerCategory] = []
         for category in categories {
             var searchedTrackers: [Tracker] = []
             
             for tracker in category.trackers {
-                if tracker.schedule.contains(weekday) {
+                if tracker.schedule.contains(weekday) && (searchText.isEmpty || tracker.name.lowercased().contains(searchText)) {
                     print("Tracker is \(tracker)")
                     searchedTrackers.append(tracker)
                 }
             }
+            
             if !searchedTrackers.isEmpty {
                 searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
             }
@@ -218,6 +266,7 @@ class TrackersViewController: UIViewController {
         }
         print("Categories for this day \(searchedCategories)")
         visibleTrackers = searchedCategories
+        print("Visible trackers for search: \(visibleTrackers)")
         print(visibleTrackers)
         collectionView.reloadData()
         updateViewController()
@@ -226,12 +275,14 @@ class TrackersViewController: UIViewController {
     private func updateViewController() {
         if visibleTrackers.isEmpty {
             collectionView.isHidden = true
-            stubView.isHidden = false
+            errorStubView.isHidden = false
             filterButton.isHidden = true
+            stubView.isHidden = true
         } else {
             collectionView.isHidden = false
-            stubView.isHidden = true
+            errorStubView.isHidden = true
             filterButton.isHidden = false
+            stubView.isHidden = true
         }
     }
     
@@ -265,6 +316,78 @@ class TrackersViewController: UIViewController {
         
         return datePicker
     }
+    private func applyFilter(_ filter: FilterOption) {
+        switch filter {
+        case .allTrackers:
+            sorted()
+            collectionView.reloadData()
+        case .todayTrackers:
+            self.currentDate = Date()
+            updateTrackers(text: nil)
+        case .completed:
+            filterCompletedTrackers()
+        case .incomplete:
+            filterUncompletedTrackers()
+        }
+        errorStubView.isHidden = !visibleTrackers.isEmpty
+    }
+    
+    private func filterCompletedTrackers(isCompleted: Bool) {
+        var filteredCategories: [TrackerCategory] = []
+        for category in categories {
+            let filteredTrackers = category.trackers.filter { tracker in
+                let isTrackerCompleted = complitedTrackers.contains {trackerRecord in
+                    let day = Calendar.current.isDate(trackerRecord.trackerDate, inSameDayAs: currentDate! )
+                    return trackerRecord.trackerId == tracker.trackerId && day
+                }
+                return isCompleted ? isTrackerCompleted : !isTrackerCompleted
+            }
+            
+            if !filteredTrackers.isEmpty {
+                let newCategory = TrackerCategory(title: category.title, trackers: filteredTrackers)
+                filteredCategories.append(newCategory)
+            }
+        }
+        visibleTrackers = filteredCategories
+        collectionView.reloadData()
+    }
+    
+    private func filterUncompletedTrackers() {
+        guard let currentDate = currentDate else {
+            print("No current date selected")
+            return
+        }
+
+        var filteredCategories: [TrackerCategory] = []
+        for category in categories {
+            let filteredTrackers = category.trackers.filter { tracker in
+                let isTrackerCompleted = complitedTrackers.contains { trackerRecord in
+                    let isSameDay = Calendar.current.isDate(trackerRecord.trackerDate, inSameDayAs: currentDate)
+                    return trackerRecord.trackerId == tracker.trackerId && isSameDay
+                }
+                return !isTrackerCompleted
+            }
+            
+            if !filteredTrackers.isEmpty {
+                let newCategory = TrackerCategory(title: category.title, trackers: filteredTrackers)
+                filteredCategories.append(newCategory)
+            }
+        }
+        
+        visibleTrackers = filteredCategories
+        collectionView.reloadData()
+    }
+
+    
+    func filterCompletedTrackers() {
+        visibleTrackers = categories.map { category in
+            let completedTrackers = category.trackers.filter { tracker in
+                trackerRecordStore.isCompletedTrackerRecords(id: tracker.trackerId, date: currentDate!)
+            }
+            return TrackerCategory(title: category.title, trackers: completedTrackers)
+        }.filter { !$0.trackers.isEmpty }
+    }
+
     
     @objc private func addTarget() {
         print("Add target")
@@ -279,7 +402,27 @@ class TrackersViewController: UIViewController {
         self.currentDate = selectedDate
     }
     
-    @objc private func filterButtonTapped(){}
+    @objc private func filterButtonTapped() {
+        let filterVC = FilterViewController()
+        filterVC.selectedFilter = currentFilter
+        filterVC.filterSelectionHandler = { [weak self] selectedFilter in
+            self?.currentFilter = selectedFilter
+            self?.saveSelectedFilter(selectedFilter)
+            self?.applyFilter(selectedFilter)
+        }
+        let navController = UINavigationController(rootViewController: filterVC)
+        navController.modalPresentationStyle = .popover
+        present(navController, animated: true, completion: nil)
+    }
+    
+    private func loadSelectedFilter() -> FilterOption {
+        let savedFilter = UserDefaults.standard.string(forKey: "selectedFilter") ?? FilterOption.allTrackers.rawValue
+        return FilterOption(rawValue: savedFilter) ?? .allTrackers
+    }
+    
+    private func saveSelectedFilter(_ filter: FilterOption) {
+        UserDefaults.standard.set(filter.rawValue, forKey: "selectedFilter")
+    }
 }
 
 
