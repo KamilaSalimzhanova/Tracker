@@ -27,6 +27,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         return noteView
     }()
     
+    private var pin: UIImageView = {
+        let defaultImage = UIImage(named: "pinIcon") ?? UIImage()
+        let imageView = UIImageView(image: defaultImage)
+        imageView.tintColor = UIColor.white
+        return imageView
+    }()
     
     private let trackerView: UIView = {
         let trackerView = UIView()
@@ -90,6 +96,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     
     override init(frame: CGRect) {
         super.init(frame: frame)
+        self.pin.isHidden = true
         addSubviews()
         makeConstraints()
         trackerStore = TrackerStore(delegate: TrackersViewController())
@@ -109,6 +116,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         self.indexPath = indexPath
         self.isPinned = tracker.isPinned
         let color = tracker.color
+        self.pin.isHidden = !isPinned
         
         trackerView.backgroundColor = color
         dayCountButton.backgroundColor = color
@@ -141,7 +149,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
             emoji,
             trackerLabel,
             dayCountLabel,
-            dayCountButton
+            dayCountButton,
+            pin
         ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
         }
@@ -151,6 +160,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         trackerView.addSubview(emojiView)
         trackerView.addSubview(emoji)
         trackerView.addSubview(trackerLabel)
+        trackerView.addSubview(pin)
         noteView.addSubview(dayCountLabel)
         self.addSubview(dayCountButton)
     }
@@ -179,14 +189,16 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
             trackerLabel.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
             trackerLabel.bottomAnchor.constraint(equalTo: trackerView.bottomAnchor, constant: -12),
             
-            
             dayCountLabel.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 12),
             dayCountLabel.topAnchor.constraint(equalTo: trackerView.bottomAnchor, constant: 16),
             
             dayCountButton.trailingAnchor.constraint(equalTo: trackerView.trailingAnchor, constant: -12),
             dayCountButton.topAnchor.constraint(equalTo: trackerView.bottomAnchor, constant: 8),
             dayCountButton.heightAnchor.constraint(equalToConstant: 34),
-            dayCountButton.widthAnchor.constraint(equalToConstant: 34)
+            dayCountButton.widthAnchor.constraint(equalToConstant: 34),
+            
+            pin.leadingAnchor.constraint(equalTo: trackerView.leadingAnchor, constant: 139),
+            pin.topAnchor.constraint(equalTo: trackerView.topAnchor, constant: 12)
         ])
     }
     
