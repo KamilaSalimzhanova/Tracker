@@ -24,7 +24,11 @@ class TrackersViewController: UIViewController {
         return label
     }()
     
-    var currentDate: Date?
+    var currentDate: Date? {
+        didSet {
+            updateTrackers(text: nil)
+        }
+    }
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -148,7 +152,6 @@ class TrackersViewController: UIViewController {
             }
         })
     }
-    
     
     private func addSubviews() {
         [
@@ -315,7 +318,6 @@ class TrackersViewController: UIViewController {
         return datePicker
     }
     private func applyFilter(_ filter: FilterOption) {
-        var isFilterActive = false
         switch filter {
         case .allTrackers:
             sorted()
@@ -533,6 +535,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
             trackerCategoryStore.addTrackerToCategory(tracker: tracker, with: targetCategoryTitle)
             trackerStore.changePin(trackerId: tracker.trackerId, isPinned: true)
             updateTrackers(text: nil)
+            sortPinnedCategoryToTop()
             collectionView.reloadData()
         }
     }
@@ -554,6 +557,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         UserDefaults.standard.removeObject(forKey: tracker.trackerId.uuidString)
         trackerStore.changePin(trackerId: tracker.trackerId, isPinned: false)
         updateTrackers(text: nil)
+        sortPinnedCategoryToTop()
         collectionView.reloadData()
     }
     
@@ -608,6 +612,16 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         self.present(actionSheet, animated: true, completion: nil)
         updateTrackers(text: nil)
     }
+    
+    private func sortPinnedCategoryToTop() {
+        let pinnedCategory = visibleTrackers.first { $0.title == "Закрепленные" }
+        let otherCategories = visibleTrackers.filter { $0.title != "Закрепленные" }
+        if let pinned = pinnedCategory {
+            visibleTrackers = [pinned] + otherCategories
+        } else {
+            visibleTrackers = otherCategories
+        }
+    }
 }
 extension TrackersViewController: HabbitCreateViewControllerProtocol {
     func createTracker(category: String, tracker: Tracker) {
@@ -615,7 +629,7 @@ extension TrackersViewController: HabbitCreateViewControllerProtocol {
         categories = trackerCategoryStore.getCategories()
         visibleTrackers = categories
         collectionView.reloadData()
-        updateTrackers(text: nil)
+        applyFilter(loadSelectedFilter())
         print("Visible trackers after creation \(visibleTrackers)")
     }
     func createTracker(prevCategory: String, newCategory: String, tracker: Tracker){
@@ -624,6 +638,7 @@ extension TrackersViewController: HabbitCreateViewControllerProtocol {
         visibleTrackers = categories
         updateTrackers(text: nil)
         print("Visible trackers after creation \(visibleTrackers)")
+        applyFilter(loadSelectedFilter())
         print("New tracker id: \(tracker.trackerId)")
     }
 }
