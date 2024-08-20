@@ -431,14 +431,35 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         let categoryTitle = visibleTrackers[indexPath.section].title
         let allCategories: [TrackerCategory] = []
         if let category = allCategories.first(where: { $0.title == categoryTitle }) {
-              habitViewController.category = category
+            habitViewController.category = category
         }
         habitViewController.modalPresentationStyle = .popover
         self.present(habitViewController, animated: true)
         collectionView.reloadData()
         updateTrackers(text: nil)
     }
-    func handleDeleteAction(indexPath: IndexPath){}
+    func handleDeleteAction(indexPath: IndexPath){
+        let actionSheet = UIAlertController(title: NSLocalizedString("actionSheetTitle", comment: ""), message: nil, preferredStyle: .actionSheet)
+        let deleteAction = UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
+            let trackerForDelete = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
+            self.trackerStore.deleteTracker(tracker: trackerForDelete)
+            self.trackerRecordStore.deleteTracker(tracker: trackerForDelete)
+            let oldCategory = self.visibleTrackers[indexPath.section]
+            let newTrackers = oldCategory.trackers.filter { $0.trackerId != trackerForDelete.trackerId }
+            if newTrackers.isEmpty {
+                self.visibleTrackers.remove(at: indexPath.section)
+            } else {
+                let newCategory = TrackerCategory(title: oldCategory.title, trackers: newTrackers)
+                self.visibleTrackers[indexPath.section] = newCategory
+            }
+        }
+        
+        let cancelAction = UIAlertAction(title: NSLocalizedString("cancelButton.text", comment: ""), style: .cancel)
+        actionSheet.addAction(deleteAction)
+        actionSheet.addAction(cancelAction)
+        self.present(actionSheet, animated: true, completion: nil)
+        updateTrackers(text: nil)
+    }
 }
 extension TrackersViewController: HabbitCreateViewControllerProtocol {
     func createTracker(category: String, tracker: Tracker) {

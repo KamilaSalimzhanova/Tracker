@@ -21,3 +21,4 @@
 "unpin" = "Unpin";
 "edit" = "Edit";
 "delete" = "Delete";
+"actionSheetTitle" = "Are you sure you want to delete the tracker?";

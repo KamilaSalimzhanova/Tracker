@@ -73,7 +73,6 @@ final class TrackerCategoryStore: NSObject {
                 return
             }
             deleteTracker(trackerCoreData: trackerCoreData)
-            getCategories()
             saveContext()
         } catch {
             print("Failed to fetch tracker: \(error)")
@@ -81,7 +80,6 @@ final class TrackerCategoryStore: NSObject {
         }
     }
 
-    
     private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
         return fetchAllCategories().first { $0.title == title }
     }
@@ -96,7 +94,6 @@ final class TrackerCategoryStore: NSObject {
         category?.addToTrackers(trackerCoreData)
         saveContext()
     }
-    
     
     private func createCategory(with title: String) -> TrackerCategoryCoreData {
         guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
@@ -133,7 +130,6 @@ final class TrackerCategoryStore: NSObject {
         existingCategory.trackers = NSSet(array: existingTrackers)
         saveContext()
     }
-    
     func decodingCategory(trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
         guard let title = trackerCategoryCoreData.title else { return nil }
         let trackers = (trackerCategoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {

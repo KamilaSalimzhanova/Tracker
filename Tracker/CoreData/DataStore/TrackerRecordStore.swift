@@ -14,27 +14,44 @@ final class TrackerRecordStore {
     }
     
     func saveTrackerRecord(trackerRecord: TrackerRecord) {
-        let trackerRecordData = TrackerRecordCoreData(context: context)
-        trackerRecordData.trackerId = trackerRecord.trackerId
-        trackerRecordData.trackerDate = trackerRecord.trackerDate
+        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerRecordCoreData", in: context) else { return }
+        let newRecord = TrackerRecordCoreData(entity: entity, insertInto: context)
+        newRecord.trackerId = trackerRecord.trackerId
+        newRecord.trackerDate = trackerRecord.trackerDate
         saveContext()
     }
     
     func deleteRecord(id: UUID, currentDate: Date) {
         let request = TrackerRecordCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID)
+        //request.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID)
+        request.predicate = NSPredicate(format: "trackerId == %@", id as CVarArg)
         if let recordsData = try? context.fetch(request) {
             recordsData.forEach { record in
                 if let trackerRecordDate = record.trackerDate {
                     let isTheSameDay = Calendar.current.isDate(trackerRecordDate, inSameDayAs: currentDate)
                     if isTheSameDay {
                         context.delete(record)
+                        print("Record deleted: \(record)")
+                        saveContext()
                     }
                 }
             }
         }
         saveContext()
     }
+    func deleteTracker(tracker: Tracker) {
+         let fetchRequest = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+         fetchRequest.predicate = NSPredicate(format: "trackerId == %@", tracker.trackerId as CVarArg)
+         do {
+             let records = try context.fetch(fetchRequest)
+             for record in records {
+                 context.delete(record)
+             }
+             saveContext()
+         } catch {
+             print("Error deleting records: \(error.localizedDescription)")
+         }
+     }
     func isCompletedTrackerRecords(id: UUID, date: Date) -> Bool {
         let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(TrackerRecordCoreData.trackerId), id as NSUUID, #keyPath(TrackerRecordCoreData.trackerDate), date as NSDate)

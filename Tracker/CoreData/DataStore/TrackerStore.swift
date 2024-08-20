@@ -90,6 +90,17 @@ final class TrackerStore: NSObject {
         }
     }
 
+    func deleteTracker(tracker: Tracker) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        do {
+            let trackerCoreData = try context.fetch(fetchRequest)
+            if let index = trackerCoreData.firstIndex(where: {$0.trackerId == tracker.trackerId}) {
+                context.delete(trackerCoreData[index])
+            }
+        }  catch {
+            print("Failed to fetch or save tracker: \(error.localizedDescription)")
+        }
+    }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
         trackerCoreData.trackerId = tracker.trackerId
