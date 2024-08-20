@@ -214,7 +214,7 @@
 				8E8540E82C5EB81C00C4F4CF /* TrackerViewController */,
 				8ED4051D2C75235F00C8C3B4 /* TabBarViewController */,
 				8E8540E12C5EB2A200C4F4CF /* Models */,
-				8E8540D12C5E648600C4F4CF /* StatisticViewController.swift */,
+				8E79C7A22C753FAD00C52B23 /* StatisticsViewController */,
 				8E59AA012C3D530600946A86 /* AppDelegate.swift */,
 				8E59A9EF2C3D4ED100946A86 /* SceneDelegate.swift */,
 				8E8540D62C5E6A6700C4F4CF /* Resources */,
@@ -224,6 +224,14 @@
 				8E85410E2C601AE800C4F4CF /* CategoryViewController */,
 			);
 			path = Tracker;
+			sourceTree = "<group>";
+		};
+		8E79C7A22C753FAD00C52B23 /* StatisticsViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8E8540D12C5E648600C4F4CF /* StatisticViewController.swift */,
+			);
+			path = StatisticsViewController;
 			sourceTree = "<group>";
 		};
 		8E8540D32C5E690C00C4F4CF /* Helpers */ = {
