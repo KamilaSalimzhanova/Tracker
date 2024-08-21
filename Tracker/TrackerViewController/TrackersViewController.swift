@@ -542,47 +542,88 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
     }
     
     func handlePinAction(indexPath: IndexPath) {
-        let tracker = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
+        var tracker = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
         let targetCategoryTitle = "Закрепленные"
         
         if self.visibleTrackers[indexPath.section].title == targetCategoryTitle {
             handleUnpinAction(indexPath: indexPath)
-        } else {
-            if trackerCategoryStore.fetchAllCategories().first(where: { $0.title == targetCategoryTitle }) == nil {
-                let newCategory = TrackerCategory(title: targetCategoryTitle, trackers: [])
-                trackerCategoryStore.createCategory(newCategory)
-            }
-            let previousCategoryTitle = self.visibleTrackers[indexPath.section].title
-            UserDefaults.standard.setValue(previousCategoryTitle, forKey: tracker.trackerId.uuidString)
-            trackerCategoryStore.deleteTrackerFromCategory(tracker: tracker, with: self.visibleTrackers[indexPath.section].title)
-            trackerCategoryStore.addTrackerToCategory(tracker: tracker, with: targetCategoryTitle)
-            trackerStore.changePin(trackerId: tracker.trackerId, isPinned: true)
-            updateTrackers(text: nil)
-            sortPinnedCategoryToTop()
-            collectionView.reloadData()
+            return
         }
+        
+        if trackerCategoryStore.fetchAllCategories().first(where: { $0.title == targetCategoryTitle }) == nil {
+            print("here1")
+            let newCategory = TrackerCategory(title: targetCategoryTitle, trackers: [])
+            trackerCategoryStore.createCategory(newCategory)
+            self.visibleTrackers.append(newCategory)
+        }
+        
+        let previousCategoryTitle = self.visibleTrackers[indexPath.section].title
+        print("previousCategoryTitle \(previousCategoryTitle)")
+        UserDefaults.standard.setValue(previousCategoryTitle, forKey: tracker.trackerId.uuidString)
+        self.visibleTrackers[indexPath.section].trackers.remove(at: indexPath.row)
+        print("visibleTrackers2: \(visibleTrackers)")
+        if self.visibleTrackers[indexPath.section].trackers.isEmpty {
+            let removedCategory = self.visibleTrackers.remove(at: indexPath.section)
+            trackerCategoryStore.deleteCategory(withTitle: removedCategory.title)
+        }
+        print("visibleTrackers3: \(visibleTrackers)")
+        tracker.isPinned = true
+        if let targetCategoryIndex = self.visibleTrackers.firstIndex(where: { $0.title == targetCategoryTitle }) {
+            self.visibleTrackers[targetCategoryIndex].trackers.append(tracker)
+            print("visibleTrackers4: \(visibleTrackers)")
+        } else {
+            let targetCategory = TrackerCategory(title: targetCategoryTitle, trackers: [tracker])
+            self.visibleTrackers.append(targetCategory)
+            print("visibleTrackers5: \(visibleTrackers)")
+        }
+        tracker.isPinned = false
+        trackerCategoryStore.deleteTrackerFromCategory(tracker: tracker, with: previousCategoryTitle)
+        trackerCategoryStore.addTrackerToCategory(tracker: tracker, with: targetCategoryTitle)
+        trackerStore.changePin(trackerId: tracker.trackerId, isPinned: true)
+        sortPinnedCategoryToTop()
+        print("Pinned visible \(visibleTrackers)")
+        collectionView.reloadData()
     }
-    
-    func handleUnpinAction(indexPath: IndexPath){
-        let tracker = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
+
+    func handleUnpinAction(indexPath: IndexPath) {
+        var tracker = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
         let targetCategoryTitle = "Закрепленные"
+        
         guard let originalCategoryTitle = UserDefaults.standard.string(forKey: tracker.trackerId.uuidString) else {
             print("No original category found for tracker with ID \(tracker.trackerId)")
             return
         }
+        
+        if let targetCategoryIndex = self.visibleTrackers.firstIndex(where: { $0.title == targetCategoryTitle }) {
+            self.visibleTrackers[targetCategoryIndex].trackers.remove(at: indexPath.row)
+            if self.visibleTrackers[targetCategoryIndex].trackers.isEmpty {
+                self.visibleTrackers.remove(at: targetCategoryIndex)
+            }
+        }
+        
         trackerCategoryStore.deleteTrackerFromCategory(tracker: tracker, with: targetCategoryTitle)
+        
         if trackerCategoryStore.fetchAllCategories().first(where: { $0.title == originalCategoryTitle }) == nil {
             print("Original category \(originalCategoryTitle) does not exist. Creating it.")
             let newCategory = TrackerCategory(title: originalCategoryTitle, trackers: [])
             trackerCategoryStore.createCategory(newCategory)
         }
+        tracker.isPinned = false
+        if let originalCategoryIndex = self.visibleTrackers.firstIndex(where: { $0.title == originalCategoryTitle }) {
+            self.visibleTrackers[originalCategoryIndex].trackers.append(tracker)
+        } else {
+            let originalCategory = TrackerCategory(title: originalCategoryTitle, trackers: [tracker])
+            self.visibleTrackers.append(originalCategory)
+        }
+        tracker.isPinned = true
         trackerCategoryStore.addTrackerToCategory(tracker: tracker, with: originalCategoryTitle)
         UserDefaults.standard.removeObject(forKey: tracker.trackerId.uuidString)
-        trackerStore.changePin(trackerId: tracker.trackerId, isPinned: false)
-        updateTrackers(text: nil)
         sortPinnedCategoryToTop()
+        trackerStore.changePin(trackerId: tracker.trackerId, isPinned: false)
+        print("Unpinned visible \(visibleTrackers)")
         collectionView.reloadData()
     }
+
     
     func handleEditAction(indexPath: IndexPath){
         print("Edit in context menu was tapped")
@@ -652,6 +693,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         } else {
             visibleTrackers = otherCategories
         }
+        collectionView.reloadData()
     }
 }
 extension TrackersViewController: HabbitCreateViewControllerProtocol {

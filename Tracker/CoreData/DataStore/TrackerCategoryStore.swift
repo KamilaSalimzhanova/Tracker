@@ -76,10 +76,10 @@ final class TrackerCategoryStore: NSObject {
             saveContext()
         } catch {
             print("Failed to fetch tracker: \(error)")
-            return 
+            return
         }
     }
-
+    
     private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
         return fetchAllCategories().first { $0.title == title }
     }
@@ -89,7 +89,7 @@ final class TrackerCategoryStore: NSObject {
         if category == nil {
             category = createCategory(with: titleCategory)
         }
-
+        
         guard let trackerCoreData = trackerStore.addNewTracker(tracker) else { return }
         category?.addToTrackers(trackerCoreData)
         saveContext()
@@ -305,6 +305,27 @@ final class TrackerCategoryStore: NSObject {
             }
         })
         return trackerCategories
+    }
+    
+    func deleteCategory(withTitle title: String) {
+        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+        do {
+            let categories = try context.fetch(fetchRequest)
+            guard let categoryToDelete = categories.first else {
+                print("Category with title \(title) not found.")
+                return
+            }
+            if let trackers = categoryToDelete.trackers as? Set<TrackerCoreData>, !trackers.isEmpty {
+                print("Category with title \(title) has associated trackers and cannot be deleted.")
+                return
+            }
+            context.delete(categoryToDelete)
+            saveContext()
+            print("Category with title \(title) deleted successfully.")
+        } catch {
+            print("Failed to delete category with title \(title): \(error)")
+        }
     }
     
     func loadCurrentTrackers(weekday: String, searchText: String) -> [TrackerCategory] {
