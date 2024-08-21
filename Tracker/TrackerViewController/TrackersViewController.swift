@@ -134,8 +134,8 @@ class TrackersViewController: UIViewController {
         self.currentDate = Date()
         categories = trackerCategoryStore.getCategories()
         currentFilter = loadSelectedFilter()
-        print(visibleTrackers)
         sorted()
+        print("Visible tracker are: \(visibleTrackers)")
         addSubviews()
         setStubView()
         setErrorStubView()
@@ -144,10 +144,6 @@ class TrackersViewController: UIViewController {
         updateViewController()
         let buttonHeight: CGFloat = 50
         collectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: buttonHeight+5, right: 0)
-        if visibleTrackers.isEmpty {
-            errorStubView.isHidden = true
-            stubView.isHidden = false
-        }
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -272,11 +268,6 @@ class TrackersViewController: UIViewController {
             let searchText = (text ?? "").lowercased()
             trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
             categories = trackerCategoryStore.getCategories()
-            if categories.isEmpty {
-                stubView.isHidden = false
-            } else {
-                stubView.isHidden = true
-            }
             var searchedCategories: [TrackerCategory] = []
             for category in categories {
                 var searchedTrackers: [Tracker] = []
@@ -631,13 +622,14 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionViewCell
         guard let cell = cell else { return }
         let tracker = visibleTrackers[indexPath.section].trackers[indexPath.row]
+        print("tracker to edit \(tracker)")
         let habitViewController = TrackerCreateViewController(regular: true, trackerTypeViewController: TrackerTypeViewController())
         habitViewController.isEdit = true
         habitViewController.delegate = self
         habitViewController.dayCount = cell.getDayCount()
-        print("Day count \(habitViewController.dayCount)")
+        print("tracker to edit: Day count \(habitViewController.dayCount)")
         habitViewController.trackerId = tracker.trackerId
-        print("TRAKCER ID \(tracker.trackerId)")
+        print("tracker to edit tracker id\(tracker.trackerId)")
         habitViewController.trackerTitle = tracker.name
         habitViewController.colorSelected = tracker.color
         habitViewController.emojiSelected = tracker.emoji
@@ -647,6 +639,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         habitViewController.category = visibleTrackers[indexPath.section]
         habitViewController.previousCategory = visibleTrackers[indexPath.section]
         let categoryTitle = visibleTrackers[indexPath.section].title
+        print("categoryTitle tracker to edit \(categoryTitle)")
         let allCategories: [TrackerCategory] = []
         if let category = allCategories.first(where: { $0.title == categoryTitle }) {
             habitViewController.category = category
@@ -699,19 +692,30 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
 extension TrackersViewController: HabbitCreateViewControllerProtocol {
     func createTracker(category: String, tracker: Tracker) {
         trackerCategoryStore.createCategoryAndTracker(tracker: tracker, with: category)
-        categories = trackerCategoryStore.getCategories()
-        sorted()
+        
         print("Categories after creation: \(visibleTrackers)")
         collectionView.reloadData()
         applyFilter(loadSelectedFilter())
     }
     func createTracker(prevCategory: String, newCategory: String, tracker: Tracker){
         trackerCategoryStore.deleteTrackerAndCategory(withID: tracker.trackerId, inCategory: prevCategory, tracker: tracker)
-        categories = trackerCategoryStore.getCategories()
-        sorted()
+        trackerCategoryStore.createCategoryAndTracker(tracker: tracker, with: newCategory)
+        if let prevCategoryIndex = visibleTrackers.firstIndex(where: { $0.title == prevCategory }) {
+            if let trackerIndex = visibleTrackers[prevCategoryIndex].trackers.firstIndex(where: { $0.trackerId == tracker.trackerId }) {
+                visibleTrackers[prevCategoryIndex].trackers.remove(at: trackerIndex)
+            }
+        }
+        if let newCategoryIndex = visibleTrackers.firstIndex(where: { $0.title == newCategory }) {
+                visibleTrackers[newCategoryIndex].trackers.append(tracker)
+        } else {
+            let newCategory = TrackerCategory(title: newCategory, trackers: [tracker])
+            visibleTrackers.append(newCategory)
+        }
+        print("Categories that are edit: \(trackerCategoryStore.getCategories())")
         print("Visible trackers after edit \(visibleTrackers)")
-        applyFilter(loadSelectedFilter())
         print("New tracker id: \(tracker.trackerId)")
+        applyFilter(loadSelectedFilter())
+        sortPinnedCategoryToTop()
     }
 }
 

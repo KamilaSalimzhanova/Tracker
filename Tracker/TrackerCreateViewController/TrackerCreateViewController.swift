@@ -397,9 +397,11 @@ final class TrackerCreateViewController: UIViewController {
             guard let category = self.category,
                 let trackerId = self.trackerId
             else { return }
-            let tracker = Tracker(trackerId: trackerId, name: trackerTitle, color: colorSelected ?? UIColor.white, emoji: emojiSelected ?? "😃", schedule: schedule, isPinned: false)
+            let tracker = Tracker(trackerId: trackerId, name: trackerTitle, color: colorSelected ?? UIColor.white, emoji: emojiSelected ?? "😃", schedule: schedule, isPinned: isPinned)
         
             self.delegate?.createTracker(prevCategory: previousCategory.title, newCategory: category.title, tracker: tracker)
+            self.dismiss(animated: false)
+            return
         }
         if !regular {
             trackerSchedule = [
@@ -453,6 +455,10 @@ extension TrackerCreateViewController: UITableViewDataSource {
             if category != nil {
                 cell.labelStackView.addArrangedSubview(cell.subTitle)
                 cell.subTitle.text = category?.title
+                if isEdit, category?.title == "Закрепленные" {
+                    cell.isUserInteractionEnabled = false
+                    cell.textLabel?.textColor = .lightGray
+                }
             }
         }
         cell.backgroundColor = UIColor.rgbColors(red: 230, green: 232, blue: 235, alpha: 0.3)
