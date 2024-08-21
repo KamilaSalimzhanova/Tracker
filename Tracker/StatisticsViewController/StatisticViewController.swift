@@ -12,7 +12,7 @@ final class StatisticsViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = NSLocalizedString("statistics", comment: "Text displayed on statistics view controller title")
         label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = .ypWhiteSimple
+        label.textColor = .ypBlack
         return label
     }()
     
@@ -54,7 +54,7 @@ final class StatisticsViewController: UIViewController {
         let label = UILabel()
         label.text = "Анализировать пока нечего"
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
