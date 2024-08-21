@@ -104,35 +104,23 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func fetchFilteredCategories(for date: Date?) -> [TrackerCategory] {
-        guard let date = date else { return [] }
-        let allCategories = fetchAllCategories()
-        var filteredCategories: [TrackerCategory] = []
-        
-        for category in allCategories {
-            guard let trackers = category.trackers?.allObjects as? [TrackerCoreData] else { continue }
-            let trackersForDate = trackers.filter { tracker in
-                guard let schedule = tracker.schedule else { return false }
-                return schedule.contains(DateFormatter.weekday(date: date))
+        guard let date = date else {return []}
+        let weekday = DateFormatter.weekday(date: date)
+        let categories = getCategories()
+        var searchedCategories: [TrackerCategory] = []
+        for category in categories {
+            var searchedTrackers: [Tracker] = []
+            for tracker in category.trackers {
+                if tracker.schedule.contains(weekday) {
+                    print("Tracker is \(tracker)")
+                    searchedTrackers.append(tracker)
+                }
             }
-            var trackersAdd: [Tracker] = []
-            for tracker in trackersForDate {
-                trackersAdd.append(Tracker(trackerId: tracker.trackerId ?? UUID(),
-                                           name: tracker.name ?? "",
-                                           color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
-                                           emoji: tracker.emoji ?? "",
-                                           schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
-                                           isPinned: tracker.isPinned)
-                )
-            }
-            if !trackersForDate.isEmpty {
-                let filteredCategory = TrackerCategory(
-                    title: category.title ?? "",
-                    trackers: trackersAdd
-                )
-                filteredCategories.append(filteredCategory)
+            if !searchedTrackers.isEmpty {
+                searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
             }
         }
-        return filteredCategories
+        return searchedCategories
     }
     
     func addTrackerToCategory(tracker: Tracker, with titleCategory: String) {

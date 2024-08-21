@@ -86,12 +86,8 @@ final class StatisticsViewController: UIViewController {
     }
     
     private func getNumberOfTrackerRecords() -> Int {
-        do {
-            return try recordStore.getTrackerRecordCount()
-        } catch {
-            print("Error fetching tracker record count: \(error)")
-            return 0
-        }
+        print("In statistics \(recordStore.fetchRecords())")
+        return recordStore.fetchRecords().count
     }
     
     private func setupAppearance() {

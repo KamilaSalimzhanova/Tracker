@@ -376,27 +376,28 @@ class TrackersViewController: UIViewController {
     }
     
     private func filterUncompletedTrackers() {
+        print("Filter uncomplete all categories: \(trackerCategoryStore.getCategories())")
+        print("Filter uncomplete all records: \(trackerRecordStore.fetchRecords())")
         guard let currentDate = currentDate else {
             print("No current date selected")
             return
         }
         
+        let weekday = DateFormatter.weekday(date: currentDate)
+        let categories = trackerCategoryStore.getCategories()
         var filteredCategories: [TrackerCategory] = []
+        
         for category in categories {
             let filteredTrackers = category.trackers.filter { tracker in
-                let isTrackerCompleted = complitedTrackers.contains { trackerRecord in
-                    let isSameDay = Calendar.current.isDate(trackerRecord.trackerDate, inSameDayAs: currentDate)
-                    return trackerRecord.trackerId == tracker.trackerId && isSameDay
-                }
-                return !isTrackerCompleted
+                guard tracker.schedule.contains(weekday) else { return false }
+                let isCompleted = trackerRecordStore.isCompletedTrackerRecords(id: tracker.trackerId, date: currentDate)
+                return !isCompleted
             }
-            
             if !filteredTrackers.isEmpty {
                 let newCategory = TrackerCategory(title: category.title, trackers: filteredTrackers)
                 filteredCategories.append(newCategory)
             }
         }
-        
         visibleTrackers = filteredCategories
         collectionView.reloadData()
     }
