@@ -31,6 +31,7 @@ class TrackersViewController: UIViewController {
             updateTrackers(text: nil)
         }
     }
+    
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         var collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -132,6 +133,7 @@ class TrackersViewController: UIViewController {
         self.view.backgroundColor = UIColor.ypBackground
         self.currentDate = Date()
         categories = trackerCategoryStore.getCategories()
+        currentFilter = loadSelectedFilter()
         print(visibleTrackers)
         sorted()
         addSubviews()

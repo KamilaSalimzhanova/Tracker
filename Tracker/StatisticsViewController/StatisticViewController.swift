@@ -26,9 +26,8 @@ final class StatisticsViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 34, weight: .bold)
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.text = "0"
-        label.textColor = .ypWhiteSimple
         return label
     }()
     
@@ -36,9 +35,8 @@ final class StatisticsViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .bold)
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.text = NSLocalizedString("doneTrackersCount", comment: "")
-        label.textColor = .ypWhiteSimple
         return label
     }()
     
