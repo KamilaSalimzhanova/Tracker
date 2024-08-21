@@ -132,10 +132,12 @@ class TrackersViewController: UIViewController {
         super.viewDidLoad()
         self.view.backgroundColor = UIColor.ypBackground
         self.currentDate = Date()
+        print("Current Date \(self.currentDate)")
         categories = trackerCategoryStore.getCategories()
         currentFilter = loadSelectedFilter()
         sorted()
         print("Visible tracker are: \(visibleTrackers)")
+        print("Tracker Record in view did load: \(trackerRecordStore.fetchRecords())")
         addSubviews()
         setStubView()
         setErrorStubView()
@@ -460,6 +462,7 @@ extension TrackersViewController: UICollectionViewDataSource {
         }
         let isCompleted = trackerRecordStore.isCompletedTrackerRecords(id: tracker.trackerId, date: date)
         let completedDays = trackerRecordStore.completedTracker(id: tracker.trackerId)
+        print("Before configure \(trackerRecordStore.fetchRecords())")
         cell.configure(tracker: tracker, isCompleted: isCompleted, indexPath: indexPath, completedDays: completedDays, currentDate: currentDate)
         cell.delegate = self
         return cell
@@ -528,7 +531,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
             return
         }
         trackerRecordStore.deleteRecord(id: id, currentDate: date)
-        print("Records are after deleteion \(trackerRecordStore.fetchRecords)")
+        print("Records are after deleteion \(trackerRecordStore.fetchRecords())")
     }
     
     func handlePinAction(indexPath: IndexPath) {

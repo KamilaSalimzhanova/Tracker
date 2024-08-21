@@ -58,20 +58,18 @@ final class TrackerRecordStore: NSObject, NSFetchedResultsControllerDelegate {
 
     func deleteRecord(id: UUID, currentDate: Date) {
         let request = TrackerRecordCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "trackerId == %@", id as CVarArg)
-        if let recordsData = try? context.fetch(request) {
-            recordsData.forEach { record in
-                if let trackerRecordDate = record.trackerDate {
-                    let isTheSameDay = Calendar.current.isDate(trackerRecordDate, inSameDayAs: currentDate)
-                    if isTheSameDay {
-                        context.delete(record)
-                        print("Record deleted: \(record)")
-                        saveContext()
-                    }
-                }
+        request.predicate = NSPredicate(format: "%K == %@ AND %K == %@",
+                                        #keyPath(TrackerRecordCoreData.trackerId), id as CVarArg,
+                                        #keyPath(TrackerRecordCoreData.trackerDate), currentDate as NSDate )
+        do {
+            let record = try context.fetch(request)
+            if let record = record.first {
+                context.delete(record)
             }
+            saveContext()
+        } catch {
+            print("Error deleting records: \(error.localizedDescription)")
         }
-        saveContext()
     }
     func deleteTracker(tracker: Tracker) {
         let fetchRequest = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
