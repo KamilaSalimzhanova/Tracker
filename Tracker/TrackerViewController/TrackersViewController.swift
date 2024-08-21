@@ -255,43 +255,47 @@ class TrackersViewController: UIViewController {
     }
     
     private func updateTrackers(text: String?) {
-        guard let currentDate = currentDate else {
-            print("No current date selected")
-            return
-        }
-        let weekday = DateFormatter.weekday(date: currentDate)
-        print(weekday)
-        let searchText = (text ?? "").lowercased()
-        trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
-        categories = trackerCategoryStore.getCategories()
-        if categories.isEmpty {
-            stubView.isHidden = false
-        } else {
-            stubView.isHidden = true
-        }
-        var searchedCategories: [TrackerCategory] = []
-        for category in categories {
-            var searchedTrackers: [Tracker] = []
-            
-            for tracker in category.trackers {
-                if tracker.schedule.contains(weekday) && (searchText.isEmpty || tracker.name.lowercased().contains(searchText)) {
-                    print("Tracker is \(tracker)")
-                    searchedTrackers.append(tracker)
+        if currentFilter == .todayTrackers {
+            guard let currentDate = currentDate else {
+                print("No current date selected")
+                return
+            }
+            let weekday = DateFormatter.weekday(date: currentDate)
+            print(weekday)
+            let searchText = (text ?? "").lowercased()
+            trackerCategoryStore.updateDateAndSearchText(weekday: weekday, searchedText: searchText)
+            categories = trackerCategoryStore.getCategories()
+            if categories.isEmpty {
+                stubView.isHidden = false
+            } else {
+                stubView.isHidden = true
+            }
+            var searchedCategories: [TrackerCategory] = []
+            for category in categories {
+                var searchedTrackers: [Tracker] = []
+                
+                for tracker in category.trackers {
+                    if tracker.schedule.contains(weekday) && (searchText.isEmpty || tracker.name.lowercased().contains(searchText)) {
+                        print("Tracker is \(tracker)")
+                        searchedTrackers.append(tracker)
+                    }
                 }
+                
+                if !searchedTrackers.isEmpty {
+                    searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
+                }
+                print("searcu categories are \(searchedCategories)")
+                
             }
-            
-            if !searchedTrackers.isEmpty {
-                searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
-            }
-            print("searcu categories are \(searchedCategories)")
-            
+            print("Categories for this day \(searchedCategories)")
+            visibleTrackers = searchedCategories
+            print("Visible trackers for search: \(visibleTrackers)")
+            print(visibleTrackers)
+            collectionView.reloadData()
+            updateViewController()
+        } else {
+            applyFilter(currentFilter)
         }
-        print("Categories for this day \(searchedCategories)")
-        visibleTrackers = searchedCategories
-        print("Visible trackers for search: \(visibleTrackers)")
-        print(visibleTrackers)
-        collectionView.reloadData()
-        updateViewController()
     }
     
     private func updateViewController() {
