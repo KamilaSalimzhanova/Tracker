@@ -7,8 +7,28 @@ struct AnalyticsService {
         
         YMMYandexMetrica.activate(with: configuration)
     }
-    
-    func report(event: String, params : [AnyHashable : Any]) {
+    func didOpenMainScreen() {
+        report(event: "open", params: ["screen": "Main"])
+    }
+    func didCloseMainScreen() {
+        report(event: "close", params: ["screen": "Main"])
+    }
+    func didClickAddTrack() {
+        report(event: "click", params: ["screen": "Main", "item": "add_track"])
+    }
+    func didClickFilter() {
+        report(event: "click", params: ["screen": "Main", "item": "filter"])
+    }
+    func didClickDelete() {
+        report(event: "click", params: ["screen": "Main", "item": "delete"])
+    }
+    func didTapTrackerOnMain() {
+        report(event: "click", params: ["screen": "Main", "item": "track"])
+    }
+    func didClickEdit() {
+        report(event: "click", params: ["screen": "Main", "item": "edit"])
+    }
+    private func report(event: String, params : [AnyHashable : Any]) {
         YMMYandexMetrica.reportEvent(event, parameters: params, onFailure: { error in
             print("REPORT ERROR: %@", error.localizedDescription)
         })

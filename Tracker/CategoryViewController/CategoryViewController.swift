@@ -6,8 +6,8 @@ protocol CategoryViewControllerDelegate: AnyObject {
 
 final class CategoryViewController: UIViewController {
     
-    private var viewModel: CategoryViewModel!
     weak var delegate: CategoryViewControllerDelegate?
+    private var viewModel: CategoryViewModel!
     
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()

@@ -11,6 +11,7 @@ protocol TrackerCollectionViewCellProtocol: AnyObject {
 
 final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuInteractionDelegate {
     
+    weak var delegate: TrackerCollectionViewCellProtocol?
     var trackerId: UUID?
     var tracker: Tracker?
     var completedDays: Int = 0
@@ -18,12 +19,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     var isPinned = false
     var isCompletedToday: Bool = false
     var count = 0
-    
-    private let analyticsService = AnalyticsService()
-    
-    weak var delegate: TrackerCollectionViewCellProtocol?
     var trackerStore: TrackerStore?
     
+    private let analyticsService = AnalyticsService()
     private let noteView: UIView = {
         let noteView = UIView()
         return noteView
@@ -143,6 +141,66 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
             dayCountButton.isEnabled = true
         }
     }
+    
+    func trackerComplete() {
+        let buttonImage = UIImage(named: "Done")
+        dayCountButton.layer.opacity = 0.7
+        dayCountButton.setImage(buttonImage, for: .normal)
+        dayCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            completedDays
+        )
+    }
+    func getDayCount() -> String {
+        dayCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("numberOfDays", comment: ""),
+            completedDays
+        )
+        return dayCountLabel.text ?? ""
+    }
+    func trackerCompleteUndo() {
+        let buttonImage = UIImage(named: "Plus button")
+        dayCountButton.layer.opacity = 1
+        dayCountButton.setImage(buttonImage, for: .normal)
+        dayCountLabel.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: ""), completedDays)
+    }
+    
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
+            guard let self = self, let indexPath = self.indexPath else {
+                return UIMenu(title: "", children: [])
+            }
+            let pin = UIAction(title: NSLocalizedString("pin", comment: ""), image: UIImage(systemName: "pin")) { [weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.handlePinAction(indexPath: indexPath)
+            }
+            
+            let unpin = UIAction(title: NSLocalizedString("unpin", comment: ""), image: UIImage(systemName: "pin.slash")) { [weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.handlePinAction(indexPath: indexPath)
+            }
+            
+            let edit = UIAction(title: NSLocalizedString("edit", comment: ""), image: UIImage(systemName: "pencil")) { [weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.handleEditAction(indexPath: indexPath)
+            }
+            
+            let delete = UIAction(title: NSLocalizedString("delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) {[weak self] _ in
+                guard let self = self else { return }
+                self.delegate?.handleDeleteAction(indexPath: indexPath)
+            }
+            
+            let actions: [UIAction]
+            if self.isPinned {
+                actions = [unpin, edit, delete]
+            } else {
+                actions = [pin, edit, delete]
+            }
+            
+            return UIMenu(title: "", children: actions)
+        }
+    }
+    
     private func addSubviews() {
         [
             noteView,
@@ -205,7 +263,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
     }
     
     @objc private func buttonTapped(){
-        analyticsService.report(event: "click", params: ["screen": "Main", "item": "track"])
+        analyticsService.didTapTrackerOnMain()
         if isCompletedToday {
             UIView.animate(withDuration: 0.2, delay: 0) {
                 guard let trackerId = self.trackerId, let indexPath = self.indexPath else {
@@ -230,61 +288,5 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
         }
         isCompletedToday = !isCompletedToday
     }
-    func trackerComplete() {
-        let buttonImage = UIImage(named: "Done")
-        self.dayCountButton.layer.opacity = 0.7
-        self.dayCountButton.setImage(buttonImage, for: .normal)
-        self.dayCountLabel.text = String.localizedStringWithFormat(
-            NSLocalizedString("numberOfDays", comment: ""),
-            self.completedDays
-        )
-    }
-    func getDayCount() -> String {
-        self.dayCountLabel.text = String.localizedStringWithFormat(
-            NSLocalizedString("numberOfDays", comment: ""),
-            self.completedDays
-        )
-        return dayCountLabel.text ?? ""
-    }
-    func trackerCompleteUndo() {
-        let buttonImage = UIImage(named: "Plus button")
-        self.dayCountButton.layer.opacity = 1
-        self.dayCountButton.setImage(buttonImage, for: .normal)
-        self.dayCountLabel.text = String.localizedStringWithFormat(NSLocalizedString("numberOfDays", comment: ""), completedDays)
-    }
-    
-    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
-        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] _ in
-            guard let self = self, let indexPath = self.indexPath else {
-                return UIMenu(title: "", children: [])
-            }
-            let pin = UIAction(title: NSLocalizedString("pin", comment: ""), image: UIImage(systemName: "pin")) { [self] _ in
-                self.delegate?.handlePinAction(indexPath: indexPath)
-            }
-            
-            let unpin = UIAction(title: NSLocalizedString("unpin", comment: ""), image: UIImage(systemName: "pin.slash")) { _ in
-                self.delegate?.handlePinAction(indexPath: indexPath)
-            }
-            
-            let edit = UIAction(title: NSLocalizedString("edit", comment: ""), image: UIImage(systemName: "pencil")) { _ in
-                self.delegate?.handleEditAction(indexPath: indexPath)
-            }
-            
-            let delete = UIAction(title: NSLocalizedString("delete", comment: ""), image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
-                self.delegate?.handleDeleteAction(indexPath: indexPath)
-            }
-            
-            let actions: [UIAction]
-            if self.isPinned {
-                actions = [unpin, edit, delete]
-            } else {
-                actions = [pin, edit, delete]
-            }
-            
-            return UIMenu(title: "", children: actions)
-        }
-    }
-    
-    
 }
 

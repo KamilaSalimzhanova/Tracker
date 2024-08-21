@@ -1,6 +1,8 @@
 import UIKit
 
 class PageContentViewController: UIViewController {
+    var imageName: String
+    var text: String
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "Onboarding1"))
         imageView.contentMode = .scaleAspectFill
@@ -29,6 +31,8 @@ class PageContentViewController: UIViewController {
     }()
     
     init(imageName: String, text: String) {
+        self.imageName = imageName
+        self.text = text
         super.init(nibName: nil, bundle: nil)
         imageView.image = UIImage(named: imageName)
         mainLabel.text = text

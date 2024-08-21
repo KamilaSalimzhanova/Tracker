@@ -40,8 +40,13 @@ final class TrackerStore: NSObject {
     
     func fetchTrackerCoreData() -> [TrackerCoreData] {
         let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
-        let trackerCoreData = try! context.fetch(fetchRequest)
-        return trackerCoreData
+        do{
+            let trackerCoreData = try context.fetch(fetchRequest)
+            return trackerCoreData
+        } catch let error as NSError {
+            print("Could not fetch records. \(error), \(error.userInfo)")
+            return []
+        }
     }
     
     func addNewTracker(_ tracker: Tracker) -> TrackerCoreData? {

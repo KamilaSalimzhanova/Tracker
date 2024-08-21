@@ -254,7 +254,7 @@ final class TrackerCategoryStore: NSObject {
     
     func deleteTrackerFromCategory(tracker: Tracker, with titleCategory: String) {
         guard let existingCategory = fetchCategory(title: titleCategory) else { return }
-        var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
+        guard var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] else { return }
         if let index = existingTrackers.firstIndex(where: { $0.trackerId == tracker.trackerId }) {
             existingTrackers.remove(at: index)
         }

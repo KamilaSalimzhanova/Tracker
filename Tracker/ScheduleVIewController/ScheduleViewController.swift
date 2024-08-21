@@ -2,9 +2,10 @@ import UIKit
 
 final class ScheduleViewController: UIViewController {
     
+    weak var delegate: TrackerCreateViewController?
+    
     private var trackerSchedule: [String] = []
     private var scheduleSubtitle: [String] = []
-    weak var delegate: TrackerCreateViewController?
     
     private let schedule = [
         Weekdays.Monday.rawValue,

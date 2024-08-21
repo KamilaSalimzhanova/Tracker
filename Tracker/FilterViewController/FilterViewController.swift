@@ -8,7 +8,11 @@ enum FilterOption: String {
 }
 
 class FilterViewController: UIViewController {
-        
+    
+    var selectedFilter: FilterOption = .allTrackers
+    var filterSelectionHandler: ((FilterOption) -> Void)?
+    
+    private let filterOptions: [FilterOption] = [.allTrackers, .todayTrackers, .completed, .incomplete]
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -17,12 +21,6 @@ class FilterViewController: UIViewController {
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
     }()
-    
-    var selectedFilter: FilterOption = .allTrackers
-    var filterSelectionHandler: ((FilterOption) -> Void)?
-    
-    private let filterOptions: [FilterOption] = [.allTrackers, .todayTrackers, .completed, .incomplete]
-    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.layer.masksToBounds = true

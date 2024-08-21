@@ -1,6 +1,17 @@
 import UIKit
 
 class TrackersViewController: UIViewController {
+    let numberOfCellsInRow: Int = 2
+    let height: Int = 148
+    let horizontalSpacing: Int = 9
+    let verticalSpacing: Int = 0
+    
+    var currentDate: Date? {
+        didSet {
+            updateTrackers(text: nil)
+        }
+    }
+    
     private var currentFilter: FilterOption = .allTrackers
     private var completedTrackersId: Set<UUID> = []
     private var complitedTrackers: [TrackerRecord] = []
@@ -11,11 +22,6 @@ class TrackersViewController: UIViewController {
     private lazy var trackerCategoryStore = TrackerCategoryStore(delegate: self, currentDate: currentDate, searchText: searchedText)
     private lazy var trackerRecordStore = TrackerRecordStore()
     private lazy var trackerStore = TrackerStore(delegate: self)
-    let numberOfCellsInRow: Int = 2
-    let height: Int = 148
-    let horizontalSpacing: Int = 9
-    let verticalSpacing: Int = 0
-    
     private let analyticsService = AnalyticsService()
     
     private let dateLabel: UILabel = {
@@ -25,12 +31,6 @@ class TrackersViewController: UIViewController {
         label.textAlignment = .center
         return label
     }()
-    
-    var currentDate: Date? {
-        didSet {
-            updateTrackers(text: nil)
-        }
-    }
     
     private lazy var collectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
@@ -148,19 +148,27 @@ class TrackersViewController: UIViewController {
             errorStubView.isHidden = true
             stubView.isHidden = false
         }
-
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
-      super.viewWillAppear(animated)
-      analyticsService.report(event: "open", params: ["screen": "Main"])
+        super.viewWillAppear(animated)
+        analyticsService.didOpenMainScreen()
     }
     
     override func viewDidDisappear(_ animated: Bool) {
-      super.viewDidDisappear(true)
-      analyticsService.report(event: "close", params: ["screen": "Main"])
+        super.viewDidDisappear(true)
+        analyticsService.didCloseMainScreen()
     }
-
+    
+    func filterCompletedTrackers() {
+        visibleTrackers = categories.map { category in
+            let completedTrackers = category.trackers.filter { tracker in
+                trackerRecordStore.isCompletedTrackerRecords(id: tracker.trackerId, date: currentDate!)
+            }
+            return TrackerCategory(title: category.title, trackers: completedTrackers)
+        }.filter { !$0.trackers.isEmpty }
+    }
     
     private func sorted() {
         visibleTrackers = categories.map { category in
@@ -384,7 +392,7 @@ class TrackersViewController: UIViewController {
             print("No current date selected")
             return
         }
-
+        
         var filteredCategories: [TrackerCategory] = []
         for category in categories {
             let filteredTrackers = category.trackers.filter { tracker in
@@ -404,21 +412,18 @@ class TrackersViewController: UIViewController {
         visibleTrackers = filteredCategories
         collectionView.reloadData()
     }
-
-    
-    func filterCompletedTrackers() {
-        visibleTrackers = categories.map { category in
-            let completedTrackers = category.trackers.filter { tracker in
-                trackerRecordStore.isCompletedTrackerRecords(id: tracker.trackerId, date: currentDate!)
-            }
-            return TrackerCategory(title: category.title, trackers: completedTrackers)
-        }.filter { !$0.trackers.isEmpty }
+    private func loadSelectedFilter() -> FilterOption {
+        let savedFilter = UserDefaults.standard.string(forKey: "selectedFilter") ?? FilterOption.allTrackers.rawValue
+        return FilterOption(rawValue: savedFilter) ?? .allTrackers
     }
-
+    
+    private func saveSelectedFilter(_ filter: FilterOption) {
+        UserDefaults.standard.set(filter.rawValue, forKey: "selectedFilter")
+    }
     
     @objc private func addTarget() {
         print("PlusButtonTapped")
-        analyticsService.report(event: "click", params: ["screen": "Main", "item": "add_track"])
+        analyticsService.didClickAddTrack()
         let viewController = TrackerTypeViewController()
         viewController.trackerViewController = self
         viewController.modalPresentationStyle = .popover
@@ -432,7 +437,7 @@ class TrackersViewController: UIViewController {
     
     @objc private func filterButtonTapped() {
         print("filterButtonTapped")
-        analyticsService.report(event: "click", params: ["screen": "Main", "item": "filter"])
+        analyticsService.didClickFilter()
         let filterVC = FilterViewController()
         filterVC.selectedFilter = currentFilter
         filterVC.filterSelectionHandler = { [weak self] selectedFilter in
@@ -443,15 +448,6 @@ class TrackersViewController: UIViewController {
         let navController = UINavigationController(rootViewController: filterVC)
         navController.modalPresentationStyle = .popover
         present(navController, animated: true, completion: nil)
-    }
-    
-    private func loadSelectedFilter() -> FilterOption {
-        let savedFilter = UserDefaults.standard.string(forKey: "selectedFilter") ?? FilterOption.allTrackers.rawValue
-        return FilterOption(rawValue: savedFilter) ?? .allTrackers
-    }
-    
-    private func saveSelectedFilter(_ filter: FilterOption) {
-        UserDefaults.standard.set(filter.rawValue, forKey: "selectedFilter")
     }
 }
 
@@ -591,7 +587,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
     
     func handleEditAction(indexPath: IndexPath){
         print("Edit in context menu was tapped")
-        analyticsService.report(event: "click", params: ["screen": "Main", "item": "edit"])
+        analyticsService.didClickEdit()
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "trackerCell", for: indexPath) as? TrackerCollectionViewCell
         guard let cell = cell else { return }
         let tracker = visibleTrackers[indexPath.section].trackers[indexPath.row]
@@ -622,7 +618,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
     }
     func handleDeleteAction(indexPath: IndexPath){
         print("Delete in context menu was tapped")
-        analyticsService.report(event: "click", params: ["screen": "Main", "item": "delete"])
+        analyticsService.didClickDelete()
         let actionSheet = UIAlertController(title: NSLocalizedString("actionSheetTitle", comment: ""), message: nil, preferredStyle: .actionSheet)
         let deleteAction = UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
             let trackerForDelete = self.visibleTrackers[indexPath.section].trackers[indexPath.row]

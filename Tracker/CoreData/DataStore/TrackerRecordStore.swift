@@ -37,14 +37,19 @@ final class TrackerRecordStore: NSObject, NSFetchedResultsControllerDelegate {
     
     func fetchRecords() -> [TrackerRecord] {
         let fetchRequest = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
-        let trackerRecordCoreDataArray = try! context.fetch(fetchRequest)
-        let trackerRecords = trackerRecordCoreDataArray.map { trackerRecordCoreData in
-            return TrackerRecord(
-                trackerId: trackerRecordCoreData.trackerId ?? UUID(),
-                trackerDate: trackerRecordCoreData.trackerDate ?? Date()
-            )
+        do {
+            let trackerRecordCoreDataArray = try context.fetch(fetchRequest)
+            let trackerRecords = trackerRecordCoreDataArray.map { trackerRecordCoreData in
+                return TrackerRecord(
+                    trackerId: trackerRecordCoreData.trackerId ?? UUID(),
+                    trackerDate: trackerRecordCoreData.trackerDate ?? Date()
+                )
+            }
+            return trackerRecords
+        } catch let error as NSError {
+            print("Could not fetch records. \(error), \(error.userInfo)")
+            return []
         }
-        return trackerRecords
     }
     
     func getTrackerRecordCount() throws -> Int {

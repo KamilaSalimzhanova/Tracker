@@ -3,9 +3,9 @@ import UIKit
 
 final class StatisticsViewController: UIViewController {
     
+    var completedTrackers: [TrackerRecord] = []
     private let recordStore = TrackerRecordStore()
     private var trackers: [Tracker] = []
-    var completedTrackers: [TrackerRecord] = []
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
@@ -70,6 +70,7 @@ final class StatisticsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypBackground
+        print("Tracker record store \(recordStore.fetchRecords())")
         setupAppearance()
     }
     
@@ -80,6 +81,10 @@ final class StatisticsViewController: UIViewController {
         addGradientBorderTo(view: container)
     }
     
+    func setValue(_ value: Int) {
+        titleStatisticLabel.text = String(value)
+    }
+    
     private func getNumberOfTrackerRecords() -> Int {
         do {
             return try recordStore.getTrackerRecordCount()
@@ -87,10 +92,6 @@ final class StatisticsViewController: UIViewController {
             print("Error fetching tracker record count: \(error)")
             return 0
         }
-    }
-    
-    func setValue(_ value: Int) {
-        titleStatisticLabel.text = String(value)
     }
     
     private func setupAppearance() {
@@ -126,7 +127,6 @@ final class StatisticsViewController: UIViewController {
     private func emptyCheck(trackersFinished: Int) {
         let isHidden: Bool = (trackersFinished > 0)
         emptyStackView.isHidden = isHidden
-        emptyStackView.isHidden = isHidden
         container.isHidden = !isHidden
     }
     
@@ -152,5 +152,3 @@ final class StatisticsViewController: UIViewController {
             view.layer.insertSublayer(gradient, at: 0)
         }
 }
-
-
