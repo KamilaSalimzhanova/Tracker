@@ -530,6 +530,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         }
         let trackerRecord = TrackerRecord(trackerId: id, trackerDate: date)
         trackerRecordStore.saveTrackerRecord(trackerRecord: trackerRecord)
+        print("Records are after completion \(trackerRecordStore.fetchRecords())")
     }
     
     func uncompleteTracker(id: UUID, at indexPath: IndexPath) {
@@ -538,6 +539,7 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
             return
         }
         trackerRecordStore.deleteRecord(id: id, currentDate: date)
+        print("Records are after deleteion \(trackerRecordStore.fetchRecords)")
     }
     
     func handlePinAction(indexPath: IndexPath) {

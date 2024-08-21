@@ -136,8 +136,8 @@ final class TrackerCollectionViewCell: UICollectionViewCell, UIContextMenuIntera
             print("No date selected")
             return
         }
-        
-        if date > Date(){
+        let selectedWeekday = DateFormatter.weekday(date: date)
+        if date > Date() || !tracker.schedule.contains(selectedWeekday){
             dayCountButton.isEnabled = false
         } else {
             dayCountButton.isEnabled = true
