@@ -668,7 +668,6 @@ extension TrackersViewController: HabbitCreateViewControllerProtocol {
         trackerCategoryStore.deleteTrackerAndCategory(withID: tracker.trackerId, inCategory: prevCategory, tracker: tracker)
         categories = trackerCategoryStore.getCategories()
         visibleTrackers = categories
-        updateTrackers(text: nil)
         print("Visible trackers after creation \(visibleTrackers)")
         applyFilter(loadSelectedFilter())
         print("New tracker id: \(tracker.trackerId)")
