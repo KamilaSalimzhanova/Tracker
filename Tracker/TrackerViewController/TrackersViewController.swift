@@ -148,7 +148,6 @@ class TrackersViewController: UIViewController {
             errorStubView.isHidden = true
             stubView.isHidden = false
         }
-        
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -620,8 +619,10 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
         print("Delete in context menu was tapped")
         analyticsService.didClickDelete()
         let actionSheet = UIAlertController(title: NSLocalizedString("actionSheetTitle", comment: ""), message: nil, preferredStyle: .actionSheet)
-        let deleteAction = UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { _ in
+        let deleteAction = UIAlertAction(title: NSLocalizedString("delete", comment: ""), style: .destructive) { [weak self] _ in
+            guard let self = self else {return}
             let trackerForDelete = self.visibleTrackers[indexPath.section].trackers[indexPath.row]
+            print("Tracker For Delete: \(trackerForDelete)")
             self.trackerStore.deleteTracker(tracker: trackerForDelete)
             self.trackerRecordStore.deleteTracker(tracker: trackerForDelete)
             let oldCategory = self.visibleTrackers[indexPath.section]
@@ -632,13 +633,15 @@ extension TrackersViewController: TrackerCollectionViewCellProtocol {
                 let newCategory = TrackerCategory(title: oldCategory.title, trackers: newTrackers)
                 self.visibleTrackers[indexPath.section] = newCategory
             }
+            print("Trackers after deletion: \(visibleTrackers)")
+            collectionView.reloadData()
+            updateViewController()
         }
         
         let cancelAction = UIAlertAction(title: NSLocalizedString("cancelButton.text", comment: ""), style: .cancel)
         actionSheet.addAction(deleteAction)
         actionSheet.addAction(cancelAction)
         self.present(actionSheet, animated: true, completion: nil)
-        updateTrackers(text: nil)
     }
     
     private func sortPinnedCategoryToTop() {
@@ -655,16 +658,16 @@ extension TrackersViewController: HabbitCreateViewControllerProtocol {
     func createTracker(category: String, tracker: Tracker) {
         trackerCategoryStore.createCategoryAndTracker(tracker: tracker, with: category)
         categories = trackerCategoryStore.getCategories()
-        visibleTrackers = categories
+        sorted()
+        print("Categories after creation: \(visibleTrackers)")
         collectionView.reloadData()
         applyFilter(loadSelectedFilter())
-        print("Visible trackers after creation \(visibleTrackers)")
     }
     func createTracker(prevCategory: String, newCategory: String, tracker: Tracker){
         trackerCategoryStore.deleteTrackerAndCategory(withID: tracker.trackerId, inCategory: prevCategory, tracker: tracker)
         categories = trackerCategoryStore.getCategories()
-        visibleTrackers = categories
-        print("Visible trackers after creation \(visibleTrackers)")
+        sorted()
+        print("Visible trackers after edit \(visibleTrackers)")
         applyFilter(loadSelectedFilter())
         print("New tracker id: \(tracker.trackerId)")
     }
