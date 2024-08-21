@@ -341,9 +341,7 @@ class TrackersViewController: UIViewController {
     private func applyFilter(_ filter: FilterOption) {
         switch filter {
         case .allTrackers:
-            sorted()
-            print(visibleTrackers)
-            collectionView.reloadData()
+            visibleTrackers = trackerCategoryStore.fetchFilteredCategories(for: currentDate)
         case .todayTrackers:
             self.currentDate = Date()
             updateTrackers(text: nil)

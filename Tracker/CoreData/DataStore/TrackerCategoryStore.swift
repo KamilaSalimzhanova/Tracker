@@ -80,10 +80,6 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
-    private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
-        return fetchAllCategories().first { $0.title == title }
-    }
-    
     func createCategoryAndTracker(tracker: Tracker, with titleCategory: String) {
         var category = fetchCategory(title: titleCategory)
         if category == nil {
@@ -93,17 +89,6 @@ final class TrackerCategoryStore: NSObject {
         guard let trackerCoreData = trackerStore.addNewTracker(tracker) else { return }
         category?.addToTrackers(trackerCoreData)
         saveContext()
-    }
-    
-    private func createCategory(with title: String) -> TrackerCategoryCoreData {
-        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
-            fatalError("Failed to create entity description")
-        }
-        let newCategory = TrackerCategoryCoreData(entity: entity, insertInto: context)
-        newCategory.title = title
-        newCategory.trackers = NSSet(array: [])
-        saveContext()
-        return newCategory
     }
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
@@ -116,6 +101,38 @@ final class TrackerCategoryStore: NSObject {
             print("Could not fetch categories. \(error), \(error.userInfo)")
             return []
         }
+    }
+    
+    func fetchFilteredCategories(for date: Date?) -> [TrackerCategory] {
+        guard let date = date else { return [] }
+        let allCategories = fetchAllCategories()
+        var filteredCategories: [TrackerCategory] = []
+        
+        for category in allCategories {
+            guard let trackers = category.trackers?.allObjects as? [TrackerCoreData] else { continue }
+            let trackersForDate = trackers.filter { tracker in
+                guard let schedule = tracker.schedule else { return false }
+                return schedule.contains(DateFormatter.weekday(date: date))
+            }
+            var trackersAdd: [Tracker] = []
+            for tracker in trackersForDate {
+                trackersAdd.append(Tracker(trackerId: tracker.trackerId ?? UUID(),
+                                           name: tracker.name ?? "",
+                                           color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
+                                           emoji: tracker.emoji ?? "",
+                                           schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                                           isPinned: tracker.isPinned)
+                )
+            }
+            if !trackersForDate.isEmpty {
+                let filteredCategory = TrackerCategory(
+                    title: category.title ?? "",
+                    trackers: trackersAdd
+                )
+                filteredCategories.append(filteredCategory)
+            }
+        }
+        return filteredCategories
     }
     
     func addTrackerToCategory(tracker: Tracker, with titleCategory: String) {
@@ -182,6 +199,20 @@ final class TrackerCategoryStore: NSObject {
             fetchedResultController.fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[c] %@ AND %K CONTAINS[c] %@", #keyPath(TrackerCoreData.schedule), weekday, #keyPath(TrackerCoreData.name), searchedText)
             try? fetchedResultController.performFetch()
         }
+    }
+    
+    private func createCategory(with title: String) -> TrackerCategoryCoreData {
+        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
+            fatalError("Failed to create entity description")
+        }
+        let newCategory = TrackerCategoryCoreData(entity: entity, insertInto: context)
+        newCategory.title = title
+        newCategory.trackers = NSSet(array: [])
+        saveContext()
+        return newCategory
+    }
+    private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
+        return fetchAllCategories().first { $0.title == title }
     }
     
     private func printCategoriesAndTrackers() {
