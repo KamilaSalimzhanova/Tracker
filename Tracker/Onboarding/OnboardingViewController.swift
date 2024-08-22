@@ -1,15 +1,12 @@
 import UIKit
 
 final class OnboardingViewController: UIPageViewController, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
-    private let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
-    lazy var pages: [UIViewController] = {
-        let page1 = PageContentViewController(imageName: "Onboarding1", text: "Отслеживайте только то, что хотите")
-        let page2 = PageContentViewController(imageName: "Onboarding2", text: "Даже если это не литры воды и йога")
-        return [page1, page2]
-    }()
+    let onboardingText1 = NSLocalizedString("mainLabelFirst.text", comment: "Text displayed on onboarding stage")
+    let onboardingText2 = NSLocalizedString("mainLabelSecond.text", comment: "Text displayed on onboarding stage")
+
     lazy var pageControl: UIPageControl = {
         let pageControl = UIPageControl()
-        pageControl.numberOfPages = pages.count
+        pageControl.numberOfPages = 2
         pageControl.currentPage = 0
 
         pageControl.currentPageIndicatorTintColor = UIColor.black
@@ -18,6 +15,8 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         pageControl.translatesAutoresizingMaskIntoConstraints = false
         return pageControl
     }()
+    
+    private let pageViewController = UIPageViewController(transitionStyle: .scroll, navigationOrientation: .horizontal, options: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,7 +27,7 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
         view.addSubview(pageViewController.view)
         pageViewController.didMove(toParent: self)
         
-        pageViewController.setViewControllers([pages[0]], direction: .forward, animated: true, completion: nil)
+        pageViewController.setViewControllers([PageContentViewController(imageName: "Onboarding1", text: onboardingText1)], direction: .forward, animated: true, completion: nil)
         pageViewController.view.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
               pageViewController.view.topAnchor.constraint(equalTo: view.topAnchor),
@@ -48,31 +47,26 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
     
     // MARK: - UIPageViewControllerDataSource
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
-        guard let viewControllerIndex = pages.firstIndex(of: viewController) else {
-            return nil
-        }
-
-        let previousIndex = viewControllerIndex - 1
+        guard let index = indexOfViewController(viewController) else { return nil }
+            
+        let previousIndex = index - 1
 
         guard previousIndex >= 0 else {
-            return pages.last
+            return createPageContentViewController(index: 1)
         }
 
-        return pages[previousIndex]
+        return createPageContentViewController(index: previousIndex)
     }
 
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
-        guard let viewControllerIndex = pages.firstIndex(of: viewController) else {
-            return nil
+        guard let index = indexOfViewController(viewController) else { return nil }
+        let nextIndex = index + 1
+
+        guard nextIndex < 2 else {
+            return createPageContentViewController(index: 0)
         }
 
-        let nextIndex = viewControllerIndex + 1
-
-        guard nextIndex < pages.count else {
-            return pages.first
-        }
-
-        return pages[nextIndex]
+        return createPageContentViewController(index: nextIndex)
     }
 
     // MARK: - UIPageViewControllerDelegate
@@ -80,8 +74,40 @@ final class OnboardingViewController: UIPageViewController, UIPageViewController
     func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
 
         if let currentViewController = pageViewController.viewControllers?.first,
-           let currentIndex = pages.firstIndex(of: currentViewController) {
+           let currentIndex = indexOfViewController(currentViewController) {
             pageControl.currentPage = currentIndex
         }
+    }
+    
+private func createPageContentViewController(index: Int) -> PageContentViewController {
+        let imageName: String
+        let text: String
+        
+        switch index {
+        case 0:
+            imageName = "Onboarding1"
+            text = onboardingText1
+        case 1:
+            imageName = "Onboarding2"
+            text = onboardingText2
+        default:
+            fatalError("Unexpected index")
+        }
+        
+        return PageContentViewController(imageName: imageName, text: text)
+    }
+    
+    private func indexOfViewController(_ viewController: UIViewController) -> Int? {
+        if let pageContentViewController = viewController as? PageContentViewController {
+            switch pageContentViewController.text {
+            case onboardingText1:
+                return 0
+            case onboardingText2:
+                return 1
+            default:
+                return nil
+            }
+        }
+        return nil
     }
 }

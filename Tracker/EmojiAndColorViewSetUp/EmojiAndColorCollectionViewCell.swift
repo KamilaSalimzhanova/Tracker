@@ -29,6 +29,7 @@ class EmojiAndColorCollectionViewCell: UICollectionViewCell {
         self.color.backgroundColor = color
     }
     
+    
 
     private func addSubviews() {
         [

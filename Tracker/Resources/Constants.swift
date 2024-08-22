@@ -1,6 +1,5 @@
 import UIKit
 
-
 enum Weekdays: String, CaseIterable {
     case Sunday = "Воскресенье"
     case Monday = "Понедельник"

@@ -2,9 +2,10 @@ import UIKit
 
 final class ScheduleViewController: UIViewController {
     
+    weak var delegate: TrackerCreateViewController?
+    
     private var trackerSchedule: [String] = []
     private var scheduleSubtitle: [String] = []
-    weak var delegate: TrackerCreateViewController?
     
     private let schedule = [
         Weekdays.Monday.rawValue,
@@ -56,7 +57,7 @@ final class ScheduleViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypBackground
         addSubviews()
         makeConstraints()
     }
@@ -119,22 +120,22 @@ extension ScheduleViewController: UITableViewDataSource {
         return cell
     }
     
-    @objc private func switchToggle(_ sender: UISwitch){
+    @objc private func switchToggle(_ sender: UISwitch) {
+        let scheduleItem = schedule[sender.tag]
+        let subtitleItem = scheduleSubtitlesArray[sender.tag]
+        
         if sender.isOn {
-            trackerSchedule.append(schedule[sender.tag])
-            scheduleSubtitle.append(scheduleSubtitlesArray[sender.tag])
+            trackerSchedule.append(scheduleItem)
+            scheduleSubtitle.append(subtitleItem)
             scheduleSubtitle = scheduleSubtitle.sorted { (a, b) -> Bool in
-                return scheduleSubtitlesArray.firstIndex(of: a)! < scheduleSubtitlesArray.firstIndex(of: b)!
+            return scheduleSubtitlesArray.firstIndex(of: a)! < scheduleSubtitlesArray.firstIndex(of: b)!
             }
         } else {
-            trackerSchedule.removeAll { weekday in
-                weekday == schedule[sender.tag]
-            }
-            scheduleSubtitle.removeAll { subtitle in
-                subtitle == scheduleSubtitle[sender.tag]
-            }
+            trackerSchedule.removeAll { $0 == scheduleItem }
+            scheduleSubtitle.removeAll { $0 == subtitleItem }
         }
     }
+
 }
 
 

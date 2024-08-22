@@ -6,8 +6,8 @@ protocol CategoryViewControllerDelegate: AnyObject {
 
 final class CategoryViewController: UIViewController {
     
-    private var viewModel: CategoryViewModel!
     weak var delegate: CategoryViewControllerDelegate?
+    private var viewModel: CategoryViewModel!
     
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
@@ -54,17 +54,12 @@ final class CategoryViewController: UIViewController {
     }()
     
     
-    private var categoryTitles: [String] {
-        let trackersViewController = TrackersViewController()
-        return trackersViewController.getCategories()
-    }
-    
     private lazy var categoryTableView: UITableView = {
         let tableView = UITableView()
         tableView.layer.masksToBounds = true
         tableView.layer.cornerRadius = 16
         tableView.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner]
-        tableView.backgroundColor = .ypWhite
+        tableView.backgroundColor = .ypBackground
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(CategoryTableViewCell.self, forCellReuseIdentifier: CategoryTableViewCell.reuseIdentifier)
@@ -79,7 +74,7 @@ final class CategoryViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypBackground
         let trackers = TrackersViewController()
         viewModel = CategoryViewModel(trackerCategoryStore: TrackerCategoryStore(delegate: trackers, currentDate: trackers.currentDate, searchText: ""))
         addSubviews()
@@ -173,14 +168,15 @@ final class CategoryViewController: UIViewController {
 
 extension CategoryViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(viewModel.numberOfCategories())
-        return viewModel.numberOfCategories()
+        viewModel.numberOfCategories()
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: CategoryTableViewCell.reuseIdentifier, for: indexPath) as! CategoryTableViewCell
         let category = viewModel.category(at: indexPath.row)
-        cell.configure(category: category, isSelected: false)
+        let isSelected = viewModel.isCategorySelected(at: indexPath.row)
+        cell.configure(category: category)
+        cell.accessoryType = isSelected ? .checkmark : .none
         print(cell)
         return cell
     }
