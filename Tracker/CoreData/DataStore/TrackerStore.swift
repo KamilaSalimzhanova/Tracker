@@ -38,17 +38,73 @@ final class TrackerStore: NSObject {
         return fetchResultedController
     }()
     
+    func fetchTrackerCoreData() -> [TrackerCoreData] {
+        let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        do{
+            let trackerCoreData = try context.fetch(fetchRequest)
+            return trackerCoreData
+        } catch let error as NSError {
+            print("Could not fetch records. \(error), \(error.userInfo)")
+            return []
+        }
+    }
+    
     func addNewTracker(_ tracker: Tracker) -> TrackerCoreData? {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker)
         saveContext()
         return trackerCoreData
     }
-    
+    func fetchTracker(withID id: UUID) -> TrackerCoreData? {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id as CVarArg)
+        
+        do {
+            let result = try context.fetch(fetchRequest)
+            return result.first
+        } catch {
+            return nil
+        }
+    }
     func decodingTracker(trackerCoreData : TrackerCoreData) -> Tracker? {
         guard let id = trackerCoreData.trackerId, let title = trackerCoreData.name,
               let color = trackerCoreData.color, let emoji = trackerCoreData.emoji, let schedule = trackerCoreData.schedule else { return nil }
-        return Tracker(trackerId: id, name: title, color: UIColorMarshalling.shared.color(from: color), emoji: emoji, schedule: schedule.components(separatedBy: ","))
+        return Tracker(trackerId: id, name: title, color: UIColorMarshalling.shared.color(from: color), emoji: emoji, schedule: schedule.components(separatedBy: ","), isPinned: trackerCoreData.isPinned)
+    }
+    
+    func getTrackerId(at indexPath: IndexPath) -> UUID? {
+        let trackerCoreData = fetchResultController.object(at: indexPath)
+        return trackerCoreData.trackerId
+    }
+    
+    func changePin(trackerId: UUID, isPinned: Bool) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "trackerId == %@", trackerId as CVarArg)
+        
+        do {
+            let results = try context.fetch(fetchRequest)
+            if let tracker = results.first {
+                tracker.isPinned = isPinned
+                try context.save()
+                print("Successfully changed pin status for tracker: \(trackerId) to \(isPinned)")
+            } else {
+                print("Tracker with ID \(trackerId) not found")
+            }
+        } catch {
+            print("Failed to fetch or save tracker: \(error.localizedDescription)")
+        }
+    }
+
+    func deleteTracker(tracker: Tracker) {
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        do {
+            let trackerCoreData = try context.fetch(fetchRequest)
+            if let index = trackerCoreData.firstIndex(where: {$0.trackerId == tracker.trackerId}) {
+                context.delete(trackerCoreData[index])
+            }
+        }  catch {
+            print("Failed to fetch or save tracker: \(error.localizedDescription)")
+        }
     }
     
     private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
@@ -57,6 +113,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.color = uiColorMarshalling.hexString(from: tracker.color)
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.schedule = tracker.schedule.joined(separator: ",")
+        trackerCoreData.isPinned = tracker.isPinned
     }
     
     private func printTrackers() {
@@ -98,6 +155,7 @@ final class TrackerStore: NSObject {
         fetchResultController.sections?[section].numberOfObjects ?? 0
     }
     
+    
     private func object(at indexPath: IndexPath) -> Tracker {
         let trackerCoreData = fetchResultController.object(at: indexPath)
         let tracker = Tracker(
@@ -105,7 +163,8 @@ final class TrackerStore: NSObject {
             name: trackerCoreData.name ?? "",
             color:  UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
             emoji: trackerCoreData.emoji ?? "😂",
-            schedule: trackerCoreData.schedule?.split(separator: ",") as? [String] ?? ["Воскресенье"])
+            schedule: trackerCoreData.schedule?.split(separator: ",") as? [String] ?? ["Воскресенье"],
+            isPinned: trackerCoreData.isPinned)
         return tracker
     }
 }

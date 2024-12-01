@@ -4,17 +4,17 @@ import UIKit
 final class TabBarViewController: UITabBarController {
     
     private enum TabBarItem: String {
-        case trackers = "Трекеры"
-        case statistics = "Статистика"
+        case trackers
+        case statistics
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.tabBar.backgroundColor = .white
+        self.tabBar.backgroundColor = .ypBackground
         self.setupViewControllers()
         let separator = UIView()
-        separator.backgroundColor = .rgbColors(red: 174, green: 175, blue: 180, alpha: 1)
+        separator.backgroundColor = UIColor.ypSeparator
         view.addSubview(separator)
         separator.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
@@ -28,18 +28,18 @@ final class TabBarViewController: UITabBarController {
     private func setupViewControllers() {
         
         let trackersViewController = TrackersViewController()
-        let statisticViewController = StatisticViewController()
+        let statisticViewController = StatisticsViewController()
         
         let trackersNavigationController = UINavigationController(rootViewController: trackersViewController)
         
         trackersNavigationController.tabBarItem = UITabBarItem(
-            title: TabBarItem.trackers.rawValue,
+            title: NSLocalizedString("tabBarItemTrackers", comment: "First text displayed on tab bar stage"),
             image: UIImage(named: "Tracker") ?? UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
         
         statisticViewController.tabBarItem = UITabBarItem(
-            title: TabBarItem.statistics.rawValue,
+            title: NSLocalizedString("tabBarItemStatistics", comment: "Second text displayed on tab bar stage"),
             image: UIImage(named: "Statistics") ?? UIImage(systemName: "hare.fill"),
             selectedImage: nil
         )

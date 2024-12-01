@@ -62,10 +62,22 @@ final class TrackerCategoryStore: NSObject {
             print("Failed to fetch categories: \(error)")
         }
     }
-
     
-    private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
-        return fetchAllCategories().first { $0.title == title }
+    func deleteTrackerAndCategory(withID id: UUID, inCategory categoryName: String, tracker: Tracker){
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "trackerId == %@ AND trackerCategory.title == %@", id as CVarArg, categoryName)
+        do {
+            let result = try context.fetch(fetchRequest)
+            guard let trackerCoreData = result.first else {
+                print("Tracker not found")
+                return
+            }
+            deleteTracker(trackerCoreData: trackerCoreData)
+            saveContext()
+        } catch {
+            print("Failed to fetch tracker: \(error)")
+            return
+        }
     }
     
     func createCategoryAndTracker(tracker: Tracker, with titleCategory: String) {
@@ -73,20 +85,10 @@ final class TrackerCategoryStore: NSObject {
         if category == nil {
             category = createCategory(with: titleCategory)
         }
+        
         guard let trackerCoreData = trackerStore.addNewTracker(tracker) else { return }
         category?.addToTrackers(trackerCoreData)
         saveContext()
-    }
-    
-    private func createCategory(with title: String) -> TrackerCategoryCoreData {
-        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
-            fatalError("Failed to create entity description")
-        }
-        let newCategory = TrackerCategoryCoreData(entity: entity, insertInto: context)
-        newCategory.title = title
-        newCategory.trackers = NSSet(array: [])
-        saveContext()
-        return newCategory
     }
     func fetchAllCategories() -> [TrackerCategoryCoreData] {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
@@ -101,6 +103,38 @@ final class TrackerCategoryStore: NSObject {
         }
     }
     
+    func fetchFilteredCategories(for date: Date?) -> [TrackerCategory] {
+        guard let date = date else {return []}
+        let weekday = DateFormatter.weekday(date: date)
+        let categories = getCategories()
+        var searchedCategories: [TrackerCategory] = []
+        for category in categories {
+            var searchedTrackers: [Tracker] = []
+            for tracker in category.trackers {
+                if tracker.schedule.contains(weekday) {
+                    print("Tracker is \(tracker)")
+                    searchedTrackers.append(tracker)
+                }
+            }
+            if !searchedTrackers.isEmpty {
+                searchedCategories.append(TrackerCategory(title: category.title, trackers: searchedTrackers))
+            }
+        }
+        return searchedCategories
+    }
+    
+    func addTrackerToCategory(tracker: Tracker, with titleCategory: String) {
+        let trackers = trackerStore.fetchTrackerCoreData()
+        guard let existingCategory = fetchCategory(title: titleCategory) else { return }
+        var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] ?? []
+        if let trackerCoreData = trackers.first(where: {$0.trackerId == tracker.trackerId}) {
+            if !existingTrackers.contains(where: { $0.trackerId == tracker.trackerId }) {
+                existingTrackers.append(trackerCoreData)
+            }
+        }
+        existingCategory.trackers = NSSet(array: existingTrackers)
+        saveContext()
+    }
     func decodingCategory(trackerCategoryCoreData: TrackerCategoryCoreData) -> TrackerCategory? {
         guard let title = trackerCategoryCoreData.title else { return nil }
         let trackers = (trackerCategoryCoreData.trackers?.allObjects as? [TrackerCoreData])?.compactMap {
@@ -116,7 +150,8 @@ final class TrackerCategoryStore: NSObject {
                     name: trackerCoreData.name ?? "",
                     color: UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
                     emoji: trackerCoreData.emoji ?? "😃",
-                    schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+                    schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                    isPinned: trackerCoreData.isPinned
                 )
             } ?? []
             return TrackerCategory(title: categoryCoreData.title ?? "", trackers: trackers)
@@ -131,6 +166,7 @@ final class TrackerCategoryStore: NSObject {
         trackerData.emoji = tracker.emoji
         trackerData.color = UIColorMarshalling.shared.hexString(from: tracker.color)
         trackerData.schedule = tracker.schedule.joined(separator: ",")
+        trackerData.isPinned = tracker.isPinned
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "%K == '\(categoryName)'", #keyPath(TrackerCategoryCoreData.title))
         if let category = try? context.fetch(request).first {
@@ -151,6 +187,20 @@ final class TrackerCategoryStore: NSObject {
             fetchedResultController.fetchRequest.predicate = NSPredicate(format: "%K CONTAINS[c] %@ AND %K CONTAINS[c] %@", #keyPath(TrackerCoreData.schedule), weekday, #keyPath(TrackerCoreData.name), searchedText)
             try? fetchedResultController.performFetch()
         }
+    }
+    
+    private func createCategory(with title: String) -> TrackerCategoryCoreData {
+        guard let entity = NSEntityDescription.entity(forEntityName: "TrackerCategoryCoreData", in: context) else {
+            fatalError("Failed to create entity description")
+        }
+        let newCategory = TrackerCategoryCoreData(entity: entity, insertInto: context)
+        newCategory.title = title
+        newCategory.trackers = NSSet(array: [])
+        saveContext()
+        return newCategory
+    }
+    private func fetchCategory(title: String) -> TrackerCategoryCoreData? {
+        return fetchAllCategories().first { $0.title == title }
     }
     
     private func printCategoriesAndTrackers() {
@@ -209,7 +259,8 @@ final class TrackerCategoryStore: NSObject {
             name: trackerCoreData.name ?? "",
             color: UIColorMarshalling.shared.color(from: trackerCoreData.color ?? "#FFFFFF"),
             emoji: trackerCoreData.emoji ?? "😂",
-            schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+            schedule: trackerCoreData.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+            isPinned: trackerCoreData.isPinned
         )
         return tracker
     }
@@ -218,6 +269,16 @@ final class TrackerCategoryStore: NSObject {
         let trackerCoreData = fetchedResultController.object(at: indexPath)
         guard let trackerHeader = trackerCoreData.trackerCategory?.title else {return "No category"}
         return trackerHeader
+    }
+    
+    func deleteTrackerFromCategory(tracker: Tracker, with titleCategory: String) {
+        guard let existingCategory = fetchCategory(title: titleCategory) else { return }
+        guard var existingTrackers = existingCategory.trackers?.allObjects as? [TrackerCoreData] else { return }
+        if let index = existingTrackers.firstIndex(where: { $0.trackerId == tracker.trackerId }) {
+            existingTrackers.remove(at: index)
+        }
+        existingCategory.trackers = NSSet(array: existingTrackers)
+        saveContext()
     }
     
     func fetchData() -> [TrackerCategory] {
@@ -234,7 +295,8 @@ final class TrackerCategoryStore: NSObject {
                 name: tracker.name ?? "",
                 color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
                 emoji: tracker.emoji ?? "😂",
-                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"])
+                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                isPinned: tracker.isPinned)
             
             print(tracker)
             
@@ -264,6 +326,27 @@ final class TrackerCategoryStore: NSObject {
         return trackerCategories
     }
     
+    func deleteCategory(withTitle title: String) {
+        let fetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+        do {
+            let categories = try context.fetch(fetchRequest)
+            guard let categoryToDelete = categories.first else {
+                print("Category with title \(title) not found.")
+                return
+            }
+            if let trackers = categoryToDelete.trackers as? Set<TrackerCoreData>, !trackers.isEmpty {
+                print("Category with title \(title) has associated trackers and cannot be deleted.")
+                return
+            }
+            context.delete(categoryToDelete)
+            saveContext()
+            print("Category with title \(title) deleted successfully.")
+        } catch {
+            print("Failed to delete category with title \(title): \(error)")
+        }
+    }
+    
     func loadCurrentTrackers(weekday: String, searchText: String) -> [TrackerCategory] {
         let request = TrackerCoreData.fetchRequest()
         
@@ -284,7 +367,8 @@ final class TrackerCategoryStore: NSObject {
                 name: tracker.name ?? "",
                 color: UIColorMarshalling.shared.color(from: tracker.color ?? "#FFFFFF"),
                 emoji: tracker.emoji ?? "😂",
-                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"]
+                schedule: tracker.schedule?.components(separatedBy: ",") ?? ["Воскресенье"],
+                isPinned: tracker.isPinned
             )
             
             print(tracker)
@@ -348,6 +432,13 @@ final class TrackerCategoryStore: NSObject {
         })
         return uuids
     }
+    
+    func deleteTracker(trackerCoreData: TrackerCoreData) {
+        context.delete(trackerCoreData)
+        saveContext()
+        print("Tracker deleted successfully.")
+    }
+    
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

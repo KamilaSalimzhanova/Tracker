@@ -8,7 +8,8 @@ final class TrackerTypeViewController: UIViewController {
     private lazy var habbitButton: UIButton = {
         let habbitButton = UIButton(type: .system)
         habbitButton.layer.cornerRadius = 16
-        habbitButton.setTitle("Привычка", for: .normal)
+        let habbitText = NSLocalizedString("trackerSelectTypeTextHabbit", comment: "Habbit text tracker select")
+        habbitButton.setTitle(habbitText, for: .normal)
         habbitButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         habbitButton.tintColor = .ypWhite
         habbitButton.backgroundColor = .ypBlack
@@ -22,7 +23,8 @@ final class TrackerTypeViewController: UIViewController {
         notRegularCaseButton.layer.cornerRadius = 16
         notRegularCaseButton.backgroundColor = .ypBlack
         notRegularCaseButton.tintColor = .ypWhite
-        notRegularCaseButton.setTitle("Нерегулярное событие", for: .normal)
+        let irregularEventText = NSLocalizedString("trackerSelectTypeTextIrregular", comment: "Irregular event text tracker select")
+        notRegularCaseButton.setTitle(irregularEventText, for: .normal)
         notRegularCaseButton.addTarget(self, action: #selector(irregularButtonTapped), for: .touchUpInside)
         return notRegularCaseButton
         
@@ -30,14 +32,14 @@ final class TrackerTypeViewController: UIViewController {
 
     private lazy var titleLabel: UILabel = {
         let titleLabel = UILabel()
-        titleLabel.text = "Создание трекера"
+        titleLabel.text = NSLocalizedString("trackerTypeSelectViewController.title", comment: "Text displayed on tracker type selection page")
         titleLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         return titleLabel
     }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .ypWhite
+        view.backgroundColor = .ypBackground
         addSubviews()
         setConstrains()
         

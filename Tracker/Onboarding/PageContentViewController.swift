@@ -1,6 +1,8 @@
 import UIKit
 
 class PageContentViewController: UIViewController {
+    var imageName: String
+    var text: String
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "Onboarding1"))
         imageView.contentMode = .scaleAspectFill
@@ -9,7 +11,8 @@ class PageContentViewController: UIViewController {
     private lazy var mainLabel: UILabel = {
         let text = UILabel()
         text.text = "Отслеживайте только то, что хотите"
-        text.tintColor = .ypBlack
+        text.tintColor = UIColor.black
+        text.textColor = UIColor.black
         text.textAlignment = .center
         text.numberOfLines = 0
         text.font = .systemFont(ofSize: 32, weight: .bold)
@@ -18,15 +21,18 @@ class PageContentViewController: UIViewController {
     private lazy var switchButton: UIButton = {
         let button = UIButton(type: .system)
         button.layer.cornerRadius = 16
-        button.setTitle("Вот это технологии!", for: .normal)
+        let buttonText = NSLocalizedString("onboardingButton.text", comment: "Text displayed on onboarding button")
+        button.setTitle(buttonText, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .ypBlack
-        button.tintColor = .ypWhite
+        button.backgroundColor = UIColor.black
+        button.tintColor = UIColor.white
         button.addTarget(self, action: #selector(switchButtonTapped), for: .touchUpInside)
         return button
     }()
     
     init(imageName: String, text: String) {
+        self.imageName = imageName
+        self.text = text
         super.init(nibName: nil, bundle: nil)
         imageView.image = UIImage(named: imageName)
         mainLabel.text = text

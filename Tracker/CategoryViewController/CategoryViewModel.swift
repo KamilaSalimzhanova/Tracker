@@ -2,6 +2,7 @@ import Foundation
 
 class CategoryViewModel {
     private let trackerCategoryStore: TrackerCategoryStore
+    private var selectedCategoryIndex: Int?
     private(set) var categories: [TrackerCategory] = [] {
         didSet {
             self.updateUI?(categories)
@@ -38,12 +39,18 @@ class CategoryViewModel {
     
     func selectCategory(at index: Int) {
         let selectedCategory = categories[index]
+        selectedCategoryIndex = index
         selectCategory?(selectedCategory)
+    }
+    
+    func isCategorySelected(at index: Int) -> Bool {
+        return selectedCategoryIndex == index
     }
     
     private func loadCategories() {
         categories = trackerCategoryStore.fetchAllCategories().compactMap {
             trackerCategoryStore.decodingCategory(trackerCategoryCoreData: $0)
         }
+        categories = categories.filter { $0.title != "Закрепленные" }
     }
 }

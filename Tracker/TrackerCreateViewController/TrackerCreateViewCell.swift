@@ -14,7 +14,7 @@ class TrackerCreateViewCell: UITableViewCell {
     lazy var title: UILabel = {
         let title = UILabel()
         title.translatesAutoresizingMaskIntoConstraints = false
-        title.text = "Категория"
+        title.text = NSLocalizedString("category", comment: "Text displayed as a category")
         title.textColor = .ypBlack
         title.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         return title
